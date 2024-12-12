@@ -15,6 +15,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const [currentWord, setCurrentWord] = useState<string>("");
   const [selectedCells, setSelectedCells] = useState<{ row: number; col: number }[]>([]);
   const [lastAddTime, setLastAddTime] = useState(Date.now());
+  const [hasTriggeredGameOver, setHasTriggeredGameOver] = useState(false);
 
   // Reset the grid when resetTrigger changes
   useEffect(() => {
@@ -22,6 +23,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
     setCurrentWord("");
     setSelectedCells([]);
     setLastAddTime(Date.now());
+    setHasTriggeredGameOver(false);
   }, [resetTrigger]);
 
   useEffect(() => {
@@ -91,13 +93,14 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   // Check if grid is full and trigger game over
   useEffect(() => {
     const isGridFull = grid.every(row => row.every(cell => cell !== ""));
-    if (isGridFull) {
+    if (isGridFull && !hasTriggeredGameOver) {
       console.log("Game Over - Grid is full!");
+      setHasTriggeredGameOver(true);
       // Trigger game over in parent component
       const event = new CustomEvent('gameOver');
       window.dispatchEvent(event);
     }
-  }, [grid]);
+  }, [grid, hasTriggeredGameOver]);
 
   return (
     <div className="flex flex-col items-center gap-4">
