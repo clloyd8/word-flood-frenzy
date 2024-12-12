@@ -25,10 +25,9 @@ export const isValidWord = async (word: string): Promise<boolean> => {
       return false;
     }
     
-    // For any other non-200 response, we'll consider it an error
+    // For any other non-200 response, we'll consider it invalid
     if (!response.ok) {
-      console.error('API error:', response.status, response.statusText);
-      // Return false instead of throwing error to keep the game running
+      console.log('API error:', response.status, response.statusText);
       return false;
     }
     
@@ -37,8 +36,7 @@ export const isValidWord = async (word: string): Promise<boolean> => {
     console.log('Valid word found:', normalizedWord);
     return true;
   } catch (error) {
-    console.error('Error checking word:', error);
-    // Return false instead of throwing error to keep the game running
+    console.log('Error checking word:', error);
     return false;
   }
 };
