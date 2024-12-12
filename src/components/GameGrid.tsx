@@ -61,8 +61,20 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const handleCellClick = (row: number, col: number) => {
     if (!grid[row][col]) return;
     
-    setCurrentWord(prev => prev + grid[row][col]);
-    setSelectedCells(prev => [...prev, { row, col }]);
+    // Check if the cell is already selected
+    const cellIndex = selectedCells.findIndex(
+      cell => cell.row === row && cell.col === col
+    );
+
+    if (cellIndex !== -1) {
+      // If cell is already selected, remove it and all subsequent selections
+      const newSelectedCells = selectedCells.slice(0, cellIndex);
+      setSelectedCells(newSelectedCells);
+      setCurrentWord(prev => prev.slice(0, cellIndex));
+    } else {
+      setCurrentWord(prev => prev + grid[row][col]);
+      setSelectedCells(prev => [...prev, { row, col }]);
+    }
   };
 
   const handleSubmit = async () => {
