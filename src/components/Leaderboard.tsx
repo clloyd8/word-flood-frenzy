@@ -15,6 +15,8 @@ const Leaderboard = () => {
   const { data: scores, isLoading } = useQuery<Score[]>({
     queryKey: ["leaderboard"],
     queryFn: async () => {
+      console.log("Fetching leaderboard data...");
+      
       const { data, error } = await supabase
         .from("scores")
         .select(`
@@ -22,22 +24,27 @@ const Leaderboard = () => {
           score,
           user_id,
           created_at,
-          user:profiles!scores_user_id_fkey(username)
+          user:profiles(username)
         `)
         .order("score", { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching leaderboard:", error);
+        throw error;
+      }
+
+      console.log("Received leaderboard data:", data);
       
       // Transform the data to match our Score interface
-      const transformedData = data?.map(item => ({
+      const transformedData = data.map(item => ({
         ...item,
         user: {
           username: item.user?.username || 'Anonymous'
         }
       }));
 
-      return transformedData as Score[];
+      return transformedData;
     },
   });
 
