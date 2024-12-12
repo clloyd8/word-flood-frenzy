@@ -28,8 +28,8 @@ const Index = () => {
       console.log("Auth state changed:", event, session?.user);
       setUser(session?.user ?? null);
 
-      // If user just signed in or signed up and there's a pending score, save it
-      if ((event === 'SIGNED_IN' || event === 'SIGNED_UP') && pendingScore !== null) {
+      // If user just signed in and there's a pending score, save it
+      if ((event === 'SIGNED_IN') && pendingScore !== null) {
         console.log("Saving pending score after sign in:", pendingScore);
         saveScore(pendingScore);
         setPendingScore(null);
