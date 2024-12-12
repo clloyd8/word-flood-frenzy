@@ -23,6 +23,7 @@ const Index = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user);
       setUser(session?.user ?? null);
     });
 
@@ -31,14 +32,47 @@ const Index = () => {
 
   // Listen for game over and board update events from GameGrid
   useEffect(() => {
-    const handleGameOver = (event: CustomEvent) => {
+    const handleGameOver = async (event: CustomEvent) => {
+      console.log("Game Over event received");
       setGameOver(true);
       setFloodLevel(100);
-      toast({
-        title: "Game Over!",
-        description: `Final Score: ${score} - Words Found: ${words.length}`,
-        duration: 5000,
-      });
+      
+      // Submit score immediately when game is over
+      if (user && score > 0) {
+        try {
+          console.log("Saving score to database...");
+          const { error } = await supabase
+            .from("scores")
+            .insert([{ user_id: user.id, score }]);
+            
+          if (error) {
+            console.error("Error saving score:", error);
+            throw error;
+          }
+
+          // Invalidate all leaderboard queries to force a refresh
+          console.log("Invalidating leaderboard queries...");
+          queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+          
+          toast({
+            title: "Score Saved!",
+            description: "Your score has been added to the leaderboard.",
+          });
+        } catch (error) {
+          console.error("Error saving score:", error);
+          toast({
+            title: "Error Saving Score",
+            description: "There was a problem saving your score.",
+            variant: "destructive",
+          });
+        }
+      } else if (!user) {
+        toast({
+          title: "Sign in to save scores",
+          description: "Create an account to compete on the leaderboard!",
+          variant: "destructive",
+        });
+      }
     };
 
     const handleBoardUpdate = (event: CustomEvent) => {
@@ -52,37 +86,10 @@ const Index = () => {
       window.removeEventListener('gameOver', handleGameOver as EventListener);
       window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
     };
-  }, [score, words.length, toast]);
-
-  const handleWordFound = useCallback((word: string) => {
-    if (!words.includes(word) && !gameOver) {
-      const points = word.length * 10;
-      setScore(current => current + points);
-      setWords(current => [...current, word]);
-      
-      toast({
-        title: "Word Found!",
-        description: `${word} - +${points} points`,
-        duration: 2000,
-      });
-    } else if (gameOver) {
-      toast({
-        title: "Game Over",
-        description: "The board is full! Start a new game to continue playing.",
-        variant: "destructive",
-        duration: 2000,
-      });
-    } else {
-      toast({
-        title: "Word Already Found",
-        description: "Find a different word",
-        variant: "destructive",
-        duration: 2000,
-      });
-    }
-  }, [words, gameOver, toast]);
+  }, [score, user, queryClient, toast]);
 
   const handleStartOver = () => {
+    console.log("Starting new game");
     setScore(0);
     setWords([]);
     setFloodLevel(0);
@@ -94,34 +101,6 @@ const Index = () => {
       duration: 2000,
     });
   };
-
-  const handleGameOver = async () => {
-    if (user && score > 0) {
-      try {
-        console.log("Saving score to database...");
-        await supabase
-          .from("scores")
-          .insert([{ user_id: user.id, score }]);
-        
-        // Invalidate all leaderboard queries to force a refresh
-        console.log("Invalidating leaderboard queries...");
-        queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-        
-        toast({
-          title: "Score Saved!",
-          description: "Your score has been added to the leaderboard.",
-        });
-      } catch (error) {
-        console.error("Error saving score:", error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (gameOver) {
-      handleGameOver();
-    }
-  }, [gameOver]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
@@ -163,7 +142,11 @@ const Index = () => {
           <div className="lg:col-span-2">
             <div className="flex flex-col items-center">
               <GameGrid 
-                onWordFound={handleWordFound} 
+                onWordFound={word => {
+                  const points = word.length * 10;
+                  setScore(current => current + points);
+                  setWords(current => [...current, word]);
+                }} 
                 floodLevel={floodLevel} 
                 resetTrigger={resetTrigger} 
               />
