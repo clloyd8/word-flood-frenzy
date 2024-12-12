@@ -17,17 +17,18 @@ export const isValidWord = async (word: string): Promise<boolean> => {
   }
 
   try {
+    console.log('Checking word:', normalizedWord);
     const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${normalizedWord}`);
     
     // A 404 response means the word doesn't exist - this is expected behavior
     if (response.status === 404) {
-      console.log('Invalid word:', normalizedWord);
+      console.log('Word not found in dictionary:', normalizedWord);
       return false;
     }
     
-    // For any other non-200 response, we'll consider it invalid
+    // For any other non-200 response, log it but don't treat as error
     if (!response.ok) {
-      console.log('API error:', response.status, response.statusText);
+      console.log('API response not OK:', response.status, response.statusText);
       return false;
     }
     
@@ -36,7 +37,8 @@ export const isValidWord = async (word: string): Promise<boolean> => {
     console.log('Valid word found:', normalizedWord);
     return true;
   } catch (error) {
-    console.log('Error checking word:', error);
+    // Log network errors but don't throw
+    console.log('Network error checking word:', error);
     return false;
   }
 };
