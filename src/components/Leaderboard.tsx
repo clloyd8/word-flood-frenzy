@@ -6,7 +6,7 @@ interface Score {
   score: number;
   user_id: string;
   created_at: string;
-  user: {
+  profiles: {
     username: string;
   };
 }
@@ -24,7 +24,7 @@ const Leaderboard = () => {
           score,
           user_id,
           created_at,
-          user:profiles(username)
+          profiles (username)
         `)
         .order("score", { ascending: false })
         .limit(10);
@@ -40,7 +40,7 @@ const Leaderboard = () => {
       const transformedData = data.map(item => ({
         ...item,
         user: {
-          username: item.user?.username || 'Anonymous'
+          username: item.profiles?.username || 'Anonymous'
         }
       }));
 
@@ -60,7 +60,7 @@ const Leaderboard = () => {
             className="flex justify-between items-center p-2 bg-water-light rounded-md"
           >
             <span className="font-medium">
-              {index + 1}. {score.user.username}
+              {index + 1}. {score.user?.username}
             </span>
             <span className="text-water-dark">{score.score}</span>
           </div>
