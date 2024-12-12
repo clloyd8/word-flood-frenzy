@@ -12,6 +12,7 @@ export const isValidWord = async (word: string): Promise<boolean> => {
 
   // Only check words that are 3 or more letters
   if (normalizedWord.length < 3) {
+    console.log('Word too short:', normalizedWord);
     return false;
   }
 
@@ -22,6 +23,8 @@ export const isValidWord = async (word: string): Promise<boolean> => {
     if (isValid) {
       validatedWordsCache.add(normalizedWord);
       console.log('Valid word found:', normalizedWord);
+    } else {
+      console.log('Invalid word:', normalizedWord);
     }
     
     return isValid;
