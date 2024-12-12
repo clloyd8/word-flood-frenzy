@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getRandomLetter } from "@/utils/wordUtils";
+import { getRandomLetter, isValidWord } from "@/utils/wordUtils";
 import { Button } from "@/components/ui/button";
 
 interface GameGridProps {
@@ -16,8 +16,8 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const [selectedCells, setSelectedCells] = useState<{ row: number; col: number }[]>([]);
   const [lastAddTime, setLastAddTime] = useState(Date.now());
   const [hasTriggeredGameOver, setHasTriggeredGameOver] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
-  // Reset the grid when resetTrigger changes
   useEffect(() => {
     setGrid(Array(6).fill(null).map(() => Array(6).fill("")));
     setCurrentWord("");
@@ -61,23 +61,29 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const handleCellClick = (row: number, col: number) => {
     if (!grid[row][col]) return;
     
-    // Add letter to current word
     setCurrentWord(prev => prev + grid[row][col]);
     setSelectedCells(prev => [...prev, { row, col }]);
   };
 
-  const handleSubmit = () => {
-    if (currentWord.length >= 3) {
-      onWordFound(currentWord);
+  const handleSubmit = async () => {
+    if (currentWord.length >= 3 && !isValidating) {
+      setIsValidating(true);
+      const valid = await isValidWord(currentWord);
       
-      // Remove used letters if word is valid
-      setGrid(currentGrid => {
-        const newGrid = currentGrid.map(row => [...row]);
-        selectedCells.forEach(({ row, col }) => {
-          newGrid[row][col] = "";
+      if (valid) {
+        onWordFound(currentWord);
+        
+        // Remove used letters if word is valid
+        setGrid(currentGrid => {
+          const newGrid = currentGrid.map(row => [...row]);
+          selectedCells.forEach(({ row, col }) => {
+            newGrid[row][col] = "";
+          });
+          return newGrid;
         });
-        return newGrid;
-      });
+      }
+      
+      setIsValidating(false);
     }
     
     // Reset current word and selections
@@ -146,9 +152,9 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
           <Button 
             onClick={handleSubmit}
             className="bg-coral text-white hover:bg-coral/90"
-            disabled={currentWord.length < 3}
+            disabled={currentWord.length < 3 || isValidating}
           >
-            Submit Word
+            {isValidating ? "Checking..." : "Submit Word"}
           </Button>
         </div>
       </div>

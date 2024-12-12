@@ -3,7 +3,6 @@ import { useToast } from "@/hooks/use-toast";
 import GameGrid from "@/components/GameGrid";
 import ScoreBoard from "@/components/ScoreBoard";
 import FloodIndicator from "@/components/FloodIndicator";
-import { isValidWord } from "@/utils/wordUtils";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
@@ -31,7 +30,7 @@ const Index = () => {
   }, [score, words.length, toast]);
 
   const handleWordFound = useCallback((word: string) => {
-    if (isValidWord(word) && !words.includes(word)) {
+    if (!words.includes(word)) {
       const points = word.length * 10;
       setScore(current => current + points);
       setWords(current => [...current, word]);
@@ -42,14 +41,7 @@ const Index = () => {
         description: `${word} - +${points} points`,
         duration: 2000,
       });
-    } else if (!isValidWord(word)) {
-      toast({
-        title: "Invalid Word",
-        description: "Try another combination",
-        variant: "destructive",
-        duration: 2000,
-      });
-    } else if (words.includes(word)) {
+    } else {
       toast({
         title: "Word Already Found",
         description: "Find a different word",
