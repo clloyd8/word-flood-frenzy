@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getRandomLetter, isValidWord } from "@/utils/wordUtils";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface GameGridProps {
   onWordFound: (word: string) => void;
@@ -17,6 +18,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const [lastAddTime, setLastAddTime] = useState(Date.now());
   const [hasTriggeredGameOver, setHasTriggeredGameOver] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setGrid(Array(6).fill(null).map(() => Array(6).fill("")));
@@ -93,12 +95,19 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
           });
           return newGrid;
         });
+      } else {
+        // Show invalid word notification
+        toast({
+          title: "Invalid Word",
+          description: `"${currentWord}" is not a valid word. Try again!`,
+          variant: "destructive",
+        });
       }
       
       setIsValidating(false);
     }
     
-    // Reset current word and selections
+    // Reset current word and selections regardless of validity
     setCurrentWord("");
     setSelectedCells([]);
   };
