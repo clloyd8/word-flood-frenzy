@@ -3,8 +3,11 @@ import { useToast } from "@/hooks/use-toast";
 import GameGrid from "@/components/GameGrid";
 import ScoreBoard from "@/components/ScoreBoard";
 import FloodIndicator from "@/components/FloodIndicator";
+import Leaderboard from "@/components/Leaderboard";
+import AuthModal from "@/components/auth/AuthModal";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Trophy, LogIn } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -12,7 +15,17 @@ const Index = () => {
   const [floodLevel, setFloodLevel] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [resetTrigger, setResetTrigger] = useState(0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Listen for game over and board update events from GameGrid
   useEffect(() => {
@@ -80,44 +93,100 @@ const Index = () => {
     });
   };
 
+  const handleGameOver = async () => {
+    if (user && score > 0) {
+      try {
+        await supabase
+          .from("scores")
+          .insert([{ user_id: user.id, score }]);
+        
+        toast({
+          title: "Score Saved!",
+          description: "Your score has been added to the leaderboard.",
+        });
+      } catch (error) {
+        console.error("Error saving score:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (gameOver) {
+      handleGameOver();
+    }
+  }, [gameOver]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-water-dark">
             Word Flood
           </h1>
-          <Button
-            onClick={handleStartOver}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Start Over
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleStartOver}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Start Over
+            </Button>
+            {!user ? (
+              <Button
+                onClick={() => setShowAuthModal(true)}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </Button>
+            ) : (
+              <Button
+                onClick={() => supabase.auth.signOut()}
+                variant="outline"
+              >
+                Sign Out
+              </Button>
+            )}
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="flex flex-col items-center">
-            <GameGrid onWordFound={handleWordFound} floodLevel={floodLevel} resetTrigger={resetTrigger} />
-            <FloodIndicator progress={floodLevel} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="flex flex-col items-center">
+              <GameGrid 
+                onWordFound={handleWordFound} 
+                floodLevel={floodLevel} 
+                resetTrigger={resetTrigger} 
+              />
+              <FloodIndicator progress={floodLevel} />
+            </div>
           </div>
           
-          <ScoreBoard score={score} words={words} />
+          <div className="space-y-8">
+            <ScoreBoard score={score} words={words} />
+            <Leaderboard />
+          </div>
         </div>
 
         {gameOver && (
           <div className="mt-8 text-center">
             <h2 className="text-2xl font-bold text-water-dark mb-2">Game Over!</h2>
             <p className="text-lg">Final Score: {score}</p>
-            <button
+            <Button
               onClick={handleStartOver}
-              className="mt-4 px-6 py-2 bg-coral text-white rounded-lg hover:bg-opacity-90 transition-colors"
+              className="mt-4 bg-coral text-white hover:bg-opacity-90"
             >
               Play Again
-            </button>
+            </Button>
           </div>
         )}
+
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+        />
       </div>
     </div>
   );
