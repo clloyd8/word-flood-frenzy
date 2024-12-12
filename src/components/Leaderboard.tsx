@@ -107,7 +107,7 @@ const Leaderboard = () => {
         `)
         .eq('user_id', session.data.session.user.id)
         .order("score", { ascending: false })
-        .limit(5);
+        .limit(10);
 
       if (error) {
         console.error("Error fetching personal best:", error);
