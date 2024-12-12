@@ -31,7 +31,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastAddTime >= 1500) { // Changed to 1.5 seconds
+      if (now - lastAddTime >= 1250) { // Changed from 1500 to 1250 milliseconds
         setGrid((currentGrid) => {
           const newGrid = currentGrid.map(row => [...row]);
           const emptySpots = [];
@@ -60,7 +60,6 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
     return () => clearInterval(interval);
   }, [lastAddTime]);
 
-  // Calculate board fullness percentage
   const calculateBoardFullness = () => {
     let filledCells = 0;
     const totalCells = 36; // 6x6 grid
