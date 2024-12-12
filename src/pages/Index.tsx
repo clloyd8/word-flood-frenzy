@@ -15,6 +15,21 @@ const Index = () => {
   const [resetTrigger, setResetTrigger] = useState(0);
   const { toast } = useToast();
 
+  // Listen for game over event from GameGrid
+  useEffect(() => {
+    const handleGameOver = () => {
+      setGameOver(true);
+      toast({
+        title: "Game Over!",
+        description: `Final Score: ${score} - Words Found: ${words.length}`,
+        duration: 5000,
+      });
+    };
+
+    window.addEventListener('gameOver', handleGameOver);
+    return () => window.removeEventListener('gameOver', handleGameOver);
+  }, [score, words.length, toast]);
+
   const handleWordFound = useCallback((word: string) => {
     if (isValidWord(word) && !words.includes(word)) {
       const points = word.length * 10;
@@ -71,7 +86,7 @@ const Index = () => {
     setWords([]);
     setFloodLevel(0);
     setGameOver(false);
-    setResetTrigger(prev => prev + 1); // Increment reset trigger to reset the grid
+    setResetTrigger(prev => prev + 1);
     toast({
       title: "New Game Started",
       description: "Good luck!",

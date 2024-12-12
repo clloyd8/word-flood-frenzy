@@ -27,7 +27,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastAddTime >= 1000) { // Add letter every second
+      if (now - lastAddTime >= 2000) { // Increased to 2 seconds (was 1 second)
         setGrid((currentGrid) => {
           const newGrid = currentGrid.map(row => [...row]);
           const emptySpots = [];
@@ -88,13 +88,16 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
     setSelectedCells([]);
   };
 
-  const isGridFull = grid.every(row => row.every(cell => cell !== ""));
-
+  // Check if grid is full and trigger game over
   useEffect(() => {
+    const isGridFull = grid.every(row => row.every(cell => cell !== ""));
     if (isGridFull) {
       console.log("Game Over - Grid is full!");
+      // Trigger game over in parent component
+      const event = new CustomEvent('gameOver');
+      window.dispatchEvent(event);
     }
-  }, [isGridFull]);
+  }, [grid]);
 
   return (
     <div className="flex flex-col items-center gap-4">
