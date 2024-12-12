@@ -4,15 +4,24 @@ import { getRandomLetter } from "@/utils/wordUtils";
 interface GameGridProps {
   onWordFound: (word: string) => void;
   floodLevel: number;
+  resetTrigger: number; // Add this prop to trigger resets
 }
 
-const GameGrid = ({ onWordFound, floodLevel }: GameGridProps) => {
+const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const [grid, setGrid] = useState<string[][]>(() => 
     Array(6).fill(null).map(() => Array(6).fill(""))
   );
   const [selection, setSelection] = useState<{ row: number; col: number }[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
   const [lastAddTime, setLastAddTime] = useState(Date.now());
+
+  // Reset the grid when resetTrigger changes
+  useEffect(() => {
+    setGrid(Array(6).fill(null).map(() => Array(6).fill("")));
+    setSelection([]);
+    setIsSelecting(false);
+    setLastAddTime(Date.now());
+  }, [resetTrigger]);
 
   useEffect(() => {
     const interval = setInterval(() => {

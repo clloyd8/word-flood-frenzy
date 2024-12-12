@@ -12,6 +12,7 @@ const Index = () => {
   const [words, setWords] = useState<string[]>([]);
   const [floodLevel, setFloodLevel] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [resetTrigger, setResetTrigger] = useState(0);
   const { toast } = useToast();
 
   const handleWordFound = useCallback((word: string) => {
@@ -70,6 +71,7 @@ const Index = () => {
     setWords([]);
     setFloodLevel(0);
     setGameOver(false);
+    setResetTrigger(prev => prev + 1); // Increment reset trigger to reset the grid
     toast({
       title: "New Game Started",
       description: "Good luck!",
@@ -96,7 +98,7 @@ const Index = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="flex flex-col items-center">
-            <GameGrid onWordFound={handleWordFound} floodLevel={floodLevel} />
+            <GameGrid onWordFound={handleWordFound} floodLevel={floodLevel} resetTrigger={resetTrigger} />
             <FloodIndicator progress={floodLevel} />
           </div>
           
