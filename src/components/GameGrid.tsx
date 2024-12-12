@@ -7,36 +7,44 @@ interface GameGridProps {
 }
 
 const GameGrid = ({ onWordFound, floodLevel }: GameGridProps) => {
-  const [grid, setGrid] = useState<string[][]>(Array(6).fill(Array(6).fill("")));
+  const [grid, setGrid] = useState<string[][]>(() => 
+    Array(6).fill(null).map(() => Array(6).fill(""))
+  );
   const [selection, setSelection] = useState<{ row: number; col: number }[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [lastAddTime, setLastAddTime] = useState(Date.now());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setGrid((currentGrid) => {
-        const newGrid = currentGrid.map((row) => [...row]);
-        const emptySpots = [];
-        
-        for (let i = 0; i < 6; i++) {
-          for (let j = 0; j < 6; j++) {
-            if (!newGrid[i][j]) {
-              emptySpots.push([i, j]);
+      const now = Date.now();
+      if (now - lastAddTime >= 1000) { // Add letter every second
+        setGrid((currentGrid) => {
+          const newGrid = currentGrid.map(row => [...row]);
+          const emptySpots = [];
+          
+          // Find all empty spots
+          for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
+              if (!newGrid[i][j]) {
+                emptySpots.push([i, j]);
+              }
             }
           }
-        }
 
-        if (emptySpots.length > 0) {
-          const [row, col] = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-          newGrid[row] = [...newGrid[row]];
-          newGrid[row][col] = getRandomLetter();
-        }
+          // If there are empty spots, fill one randomly
+          if (emptySpots.length > 0) {
+            const [row, col] = emptySpots[Math.floor(Math.random() * emptySpots.length)];
+            newGrid[row][col] = getRandomLetter();
+            setLastAddTime(now);
+          }
 
-        return newGrid;
-      });
-    }, 1000);
+          return newGrid;
+        });
+      }
+    }, 100); // Check more frequently for smooth timing
 
     return () => clearInterval(interval);
-  }, []);
+  }, [lastAddTime]);
 
   const handleMouseDown = (row: number, col: number) => {
     if (grid[row][col]) {
@@ -47,20 +55,45 @@ const GameGrid = ({ onWordFound, floodLevel }: GameGridProps) => {
 
   const handleMouseEnter = (row: number, col: number) => {
     if (isSelecting && grid[row][col]) {
-      setSelection((prev) => [...prev, { row, col }]);
+      // Only add to selection if it's adjacent to the last selected cell
+      const lastCell = selection[selection.length - 1];
+      const isAdjacent = Math.abs(row - lastCell.row) <= 1 && 
+                        Math.abs(col - lastCell.col) <= 1;
+      
+      if (isAdjacent && !selection.some(pos => pos.row === row && pos.col === col)) {
+        setSelection(prev => [...prev, { row, col }]);
+      }
     }
   };
 
   const handleMouseUp = () => {
-    if (selection.length > 2) {
+    if (selection.length >= 3) {
       const word = selection
         .map(({ row, col }) => grid[row][col])
         .join("");
+      
       onWordFound(word);
+      
+      // Remove used letters if word is valid
+      setGrid(currentGrid => {
+        const newGrid = currentGrid.map(row => [...row]);
+        selection.forEach(({ row, col }) => {
+          newGrid[row][col] = "";
+        });
+        return newGrid;
+      });
     }
     setSelection([]);
     setIsSelecting(false);
   };
+
+  const isGridFull = grid.every(row => row.every(cell => cell !== ""));
+
+  useEffect(() => {
+    if (isGridFull) {
+      console.log("Game Over - Grid is full!");
+    }
+  }, [isGridFull]);
 
   return (
     <div 
@@ -83,7 +116,7 @@ const GameGrid = ({ onWordFound, floodLevel }: GameGridProps) => {
                 w-12 h-12 flex items-center justify-center
                 rounded-md text-xl font-bold cursor-pointer
                 transition-all duration-200
-                ${letter ? "animate-letter-appear" : ""}
+                ${letter ? "animate-fade-in" : ""}
                 ${isSelected ? "bg-coral text-white" : "bg-white text-water-dark"}
                 ${letter ? "shadow-sm" : ""}
               `}
