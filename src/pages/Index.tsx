@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
 import GameGrid from "@/components/GameGrid";
 import ScoreBoard from "@/components/ScoreBoard";
 import FloodIndicator from "@/components/FloodIndicator";
@@ -43,7 +45,8 @@ const Index = () => {
       setFloodLevel(100);
       
       if (user && score > 0) {
-        await saveScore(score);
+        console.log("User is signed in, saving score directly");
+        setPendingScore(score);
       } else if (!user && score > 0) {
         console.log("Setting pending score:", score);
         setPendingScore(score);
