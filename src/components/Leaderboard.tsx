@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 interface Score {
+  id: number;
   score: number;
+  user_id: string;
+  created_at: string;
   user: {
     username: string;
   };
@@ -14,12 +17,18 @@ const Leaderboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("scores")
-        .select("score, user:profiles(username)")
+        .select(`
+          id,
+          score,
+          user_id,
+          created_at,
+          user:profiles!scores_user_id_fkey(username)
+        `)
         .order("score", { ascending: false })
         .limit(10);
 
       if (error) throw error;
-      return data;
+      return data as Score[];
     },
   });
 
@@ -31,7 +40,7 @@ const Leaderboard = () => {
       <div className="space-y-2">
         {scores?.map((score, index) => (
           <div
-            key={index}
+            key={score.id}
             className="flex justify-between items-center p-2 bg-water-light rounded-md"
           >
             <span className="font-medium">
