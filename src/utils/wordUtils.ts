@@ -9,6 +9,7 @@ const VALID_WORDS = new Set([
 ]);
 
 export const isValidWord = (word: string): boolean => {
+  console.log('Checking word:', word, 'Upper case:', word.toUpperCase());
   return VALID_WORDS.has(word.toUpperCase());
 };
 
