@@ -1,8 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
+interface Score {
+  score: number;
+  user: {
+    username: string;
+  };
+}
+
 const Leaderboard = () => {
-  const { data: scores, isLoading } = useQuery({
+  const { data: scores, isLoading } = useQuery<Score[]>({
     queryKey: ["leaderboard"],
     queryFn: async () => {
       const { data, error } = await supabase
