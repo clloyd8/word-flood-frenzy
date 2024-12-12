@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import GameGrid from "@/components/GameGrid";
@@ -18,6 +18,7 @@ const Index = () => {
   const [resetTrigger, setResetTrigger] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
+  const [pendingScore, setPendingScore] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -25,10 +26,47 @@ const Index = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session?.user);
       setUser(session?.user ?? null);
+
+      // If user just signed in and there's a pending score, save it
+      if ((event === 'SIGNED_IN' || event === 'SIGNED_UP') && pendingScore !== null) {
+        console.log("Saving pending score after sign in:", pendingScore);
+        saveScore(pendingScore);
+        setPendingScore(null);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [pendingScore]);
+
+  const saveScore = async (scoreToSave: number) => {
+    try {
+      console.log("Saving score to database:", scoreToSave);
+      const { error } = await supabase
+        .from("scores")
+        .insert([{ user_id: user.id, score: scoreToSave }]);
+        
+      if (error) {
+        console.error("Error saving score:", error);
+        throw error;
+      }
+
+      // Invalidate all leaderboard queries to force a refresh
+      console.log("Invalidating leaderboard queries...");
+      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+      
+      toast({
+        title: "Score Saved!",
+        description: "Your score has been added to the leaderboard.",
+      });
+    } catch (error) {
+      console.error("Error saving score:", error);
+      toast({
+        title: "Error Saving Score",
+        description: "There was a problem saving your score.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Listen for game over and board update events from GameGrid
   useEffect(() => {
@@ -37,38 +75,13 @@ const Index = () => {
       setGameOver(true);
       setFloodLevel(100);
       
-      // Submit score immediately when game is over
       if (user && score > 0) {
-        try {
-          console.log("Saving score to database...");
-          const { error } = await supabase
-            .from("scores")
-            .insert([{ user_id: user.id, score }]);
-            
-          if (error) {
-            console.error("Error saving score:", error);
-            throw error;
-          }
-
-          // Invalidate all leaderboard queries to force a refresh
-          console.log("Invalidating leaderboard queries...");
-          queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-          
-          toast({
-            title: "Score Saved!",
-            description: "Your score has been added to the leaderboard.",
-          });
-        } catch (error) {
-          console.error("Error saving score:", error);
-          toast({
-            title: "Error Saving Score",
-            description: "There was a problem saving your score.",
-            variant: "destructive",
-          });
-        }
-      } else if (!user) {
+        await saveScore(score);
+      } else if (!user && score > 0) {
+        console.log("Setting pending score:", score);
+        setPendingScore(score);
         toast({
-          title: "Sign in to save scores",
+          title: "Sign in to save score",
           description: "Create an account to compete on the leaderboard!",
           variant: "destructive",
         });
@@ -86,7 +99,7 @@ const Index = () => {
       window.removeEventListener('gameOver', handleGameOver as EventListener);
       window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
     };
-  }, [score, user, queryClient, toast]);
+  }, [score, user]);
 
   const handleStartOver = () => {
     console.log("Starting new game");
@@ -163,13 +176,25 @@ const Index = () => {
         {gameOver && (
           <div className="mt-8 text-center">
             <h2 className="text-2xl font-bold text-water-dark mb-2">Game Over!</h2>
-            <p className="text-lg">Final Score: {score}</p>
-            <Button
-              onClick={handleStartOver}
-              className="mt-4 bg-coral text-white hover:bg-opacity-90"
-            >
-              Play Again
-            </Button>
+            <p className="text-lg mb-4">Final Score: {score}</p>
+            <div className="flex justify-center gap-4">
+              <Button
+                onClick={handleStartOver}
+                className="bg-coral text-white hover:bg-opacity-90"
+              >
+                Play Again
+              </Button>
+              {!user && score > 0 && (
+                <Button
+                  onClick={() => setShowAuthModal(true)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign in to save score
+                </Button>
+              )}
+            </div>
           </div>
         )}
 
