@@ -9,6 +9,7 @@ import AuthModal from "@/components/auth/AuthModal";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Trophy, LogIn } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -23,7 +24,7 @@ const Index = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       console.log("Auth state changed:", event, session?.user);
       setUser(session?.user ?? null);
 
