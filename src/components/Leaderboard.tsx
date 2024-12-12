@@ -45,7 +45,7 @@ const Leaderboard = () => {
         score: item.score,
         user_id: item.user_id,
         created_at: item.created_at,
-        profiles: item.profiles,
+        profiles: item.profiles || { username: 'Anonymous' },
         user: {
           username: item.profiles?.username || 'Anonymous'
         }
@@ -67,11 +67,14 @@ const Leaderboard = () => {
             className="flex justify-between items-center p-2 bg-water-light rounded-md"
           >
             <span className="font-medium">
-              {index + 1}. {score.user?.username}
+              {index + 1}. {score.profiles.username || 'Anonymous'}
             </span>
-            <span className="text-water-dark">{score.score}</span>
+            <span className="text-water-dark font-bold">{score.score}</span>
           </div>
         ))}
+        {(!scores || scores.length === 0) && (
+          <div className="text-center text-gray-500">No scores yet</div>
+        )}
       </div>
     </div>
   );
