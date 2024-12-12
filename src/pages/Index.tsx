@@ -14,10 +14,11 @@ const Index = () => {
   const [resetTrigger, setResetTrigger] = useState(0);
   const { toast } = useToast();
 
-  // Listen for game over event from GameGrid
+  // Listen for game over and board update events from GameGrid
   useEffect(() => {
-    const handleGameOver = () => {
+    const handleGameOver = (event: CustomEvent) => {
       setGameOver(true);
+      setFloodLevel(100);
       toast({
         title: "Game Over!",
         description: `Final Score: ${score} - Words Found: ${words.length}`,
@@ -25,20 +26,35 @@ const Index = () => {
       });
     };
 
-    window.addEventListener('gameOver', handleGameOver);
-    return () => window.removeEventListener('gameOver', handleGameOver);
+    const handleBoardUpdate = (event: CustomEvent) => {
+      setFloodLevel(event.detail.boardFullness);
+    };
+
+    window.addEventListener('gameOver', handleGameOver as EventListener);
+    window.addEventListener('boardUpdate', handleBoardUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('gameOver', handleGameOver as EventListener);
+      window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
+    };
   }, [score, words.length, toast]);
 
   const handleWordFound = useCallback((word: string) => {
-    if (!words.includes(word)) {
+    if (!words.includes(word) && !gameOver) {
       const points = word.length * 10;
       setScore(current => current + points);
       setWords(current => [...current, word]);
-      setFloodLevel(current => Math.max(0, current - word.length * 2));
       
       toast({
         title: "Word Found!",
         description: `${word} - +${points} points`,
+        duration: 2000,
+      });
+    } else if (gameOver) {
+      toast({
+        title: "Game Over",
+        description: "The board is full! Start a new game to continue playing.",
+        variant: "destructive",
         duration: 2000,
       });
     } else {
@@ -49,29 +65,7 @@ const Index = () => {
         duration: 2000,
       });
     }
-  }, [words, toast]);
-
-  useEffect(() => {
-    if (gameOver) return;
-
-    const interval = setInterval(() => {
-      setFloodLevel(current => {
-        if (current >= 100) {
-          setGameOver(true);
-          clearInterval(interval);
-          toast({
-            title: "Game Over!",
-            description: `Final Score: ${score} - Words Found: ${words.length}`,
-            duration: 5000,
-          });
-          return current;
-        }
-        return current + 0.5;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [gameOver, score, words.length, toast]);
+  }, [words, gameOver, toast]);
 
   const handleStartOver = () => {
     setScore(0);

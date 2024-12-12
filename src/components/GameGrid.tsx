@@ -60,6 +60,42 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
     return () => clearInterval(interval);
   }, [lastAddTime]);
 
+  // Calculate board fullness percentage
+  const calculateBoardFullness = () => {
+    let filledCells = 0;
+    const totalCells = 36; // 6x6 grid
+    
+    grid.forEach(row => {
+      row.forEach(cell => {
+        if (cell !== "") {
+          filledCells++;
+        }
+      });
+    });
+    
+    return (filledCells / totalCells) * 100;
+  };
+
+  // Check if grid is full and trigger game over
+  useEffect(() => {
+    const isGridFull = grid.every(row => row.every(cell => cell !== ""));
+    if (isGridFull && !hasTriggeredGameOver) {
+      console.log("Game Over - Grid is full!");
+      setHasTriggeredGameOver(true);
+      // Trigger game over in parent component
+      const event = new CustomEvent('gameOver', { 
+        detail: { boardFullness: 100 } 
+      });
+      window.dispatchEvent(event);
+    } else if (!hasTriggeredGameOver) {
+      // Update flood progress based on board fullness
+      const event = new CustomEvent('boardUpdate', { 
+        detail: { boardFullness: calculateBoardFullness() } 
+      });
+      window.dispatchEvent(event);
+    }
+  }, [grid, hasTriggeredGameOver]);
+
   const handleCellClick = (row: number, col: number) => {
     if (!grid[row][col]) return;
     
@@ -80,7 +116,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   };
 
   const handleSubmit = async () => {
-    if (currentWord.length >= 3 && !isValidating) {
+    if (currentWord.length >= 3 && !isValidating && !hasTriggeredGameOver) {
       setIsValidating(true);
       const valid = await isValidWord(currentWord);
       
@@ -96,7 +132,6 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
           return newGrid;
         });
       } else {
-        // Show invalid word notification
         toast({
           title: "Invalid Word",
           description: `"${currentWord}" is not a valid word. Try again!`,
@@ -105,9 +140,14 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
       }
       
       setIsValidating(false);
+    } else if (hasTriggeredGameOver) {
+      toast({
+        title: "Game Over",
+        description: "The board is full! Start a new game to continue playing.",
+        variant: "destructive",
+      });
     }
     
-    // Reset current word and selections regardless of validity
     setCurrentWord("");
     setSelectedCells([]);
   };
@@ -116,18 +156,6 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
     setCurrentWord("");
     setSelectedCells([]);
   };
-
-  // Check if grid is full and trigger game over
-  useEffect(() => {
-    const isGridFull = grid.every(row => row.every(cell => cell !== ""));
-    if (isGridFull && !hasTriggeredGameOver) {
-      console.log("Game Over - Grid is full!");
-      setHasTriggeredGameOver(true);
-      // Trigger game over in parent component
-      const event = new CustomEvent('gameOver');
-      window.dispatchEvent(event);
-    }
-  }, [grid, hasTriggeredGameOver]);
 
   return (
     <div className="flex flex-col items-center gap-4">
