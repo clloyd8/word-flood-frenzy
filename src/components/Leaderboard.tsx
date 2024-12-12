@@ -33,7 +33,7 @@ const Leaderboard = () => {
       const transformedData = data?.map(item => ({
         ...item,
         user: {
-          username: item.user.username
+          username: item.user?.username || 'Anonymous'
         }
       }));
 
