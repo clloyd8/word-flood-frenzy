@@ -27,7 +27,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastAddTime >= 2000) { // Increased to 2 seconds (was 1 second)
+      if (now - lastAddTime >= 1500) { // Changed to 1.5 seconds
         setGrid((currentGrid) => {
           const newGrid = currentGrid.map(row => [...row]);
           const emptySpots = [];
