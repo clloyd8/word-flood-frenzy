@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import GameGrid from "@/components/GameGrid";
@@ -6,10 +6,9 @@ import ScoreBoard from "@/components/ScoreBoard";
 import FloodIndicator from "@/components/FloodIndicator";
 import Leaderboard from "@/components/Leaderboard";
 import AuthModal from "@/components/auth/AuthModal";
-import { Button } from "@/components/ui/button";
-import { RefreshCw, Trophy, LogIn } from "lucide-react";
+import AuthHandler from "@/components/auth/AuthHandler";
+import GameControls from "@/components/game/GameControls";
 import { supabase } from "@/lib/supabase";
-import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -23,53 +22,20 @@ const Index = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      console.log("Auth state changed:", event, session?.user);
-      setUser(session?.user ?? null);
-
-      // If user just signed in and there's a pending score, save it
-      if ((event === 'SIGNED_IN') && pendingScore !== null) {
-        console.log("Saving pending score after sign in:", pendingScore);
-        saveScore(pendingScore);
-        setPendingScore(null);
-      }
+  const handleStartOver = () => {
+    console.log("Starting new game");
+    setScore(0);
+    setWords([]);
+    setFloodLevel(0);
+    setGameOver(false);
+    setResetTrigger(prev => prev + 1);
+    toast({
+      title: "New Game Started",
+      description: "Good luck!",
+      duration: 2000,
     });
-
-    return () => subscription.unsubscribe();
-  }, [pendingScore]);
-
-  const saveScore = async (scoreToSave: number) => {
-    try {
-      console.log("Saving score to database:", scoreToSave);
-      const { error } = await supabase
-        .from("scores")
-        .insert([{ user_id: user.id, score: scoreToSave }]);
-        
-      if (error) {
-        console.error("Error saving score:", error);
-        throw error;
-      }
-
-      // Invalidate all leaderboard queries to force a refresh
-      console.log("Invalidating leaderboard queries...");
-      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-      
-      toast({
-        title: "Score Saved!",
-        description: "Your score has been added to the leaderboard.",
-      });
-    } catch (error) {
-      console.error("Error saving score:", error);
-      toast({
-        title: "Error Saving Score",
-        description: "There was a problem saving your score.",
-        variant: "destructive",
-      });
-    }
   };
 
-  // Listen for game over and board update events from GameGrid
   useEffect(() => {
     const handleGameOver = async (event: CustomEvent) => {
       console.log("Game Over event received");
@@ -102,20 +68,6 @@ const Index = () => {
     };
   }, [score, user]);
 
-  const handleStartOver = () => {
-    console.log("Starting new game");
-    setScore(0);
-    setWords([]);
-    setFloodLevel(0);
-    setGameOver(false);
-    setResetTrigger(prev => prev + 1);
-    toast({
-      title: "New Game Started",
-      description: "Good luck!",
-      duration: 2000,
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
       <div className="max-w-6xl mx-auto">
@@ -123,33 +75,12 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-water-dark">
             Word Flood
           </h1>
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={handleStartOver}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Start Over
-            </Button>
-            {!user ? (
-              <Button
-                onClick={() => setShowAuthModal(true)}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <LogIn className="w-4 h-4" />
-                Sign In
-              </Button>
-            ) : (
-              <Button
-                onClick={() => supabase.auth.signOut()}
-                variant="outline"
-              >
-                Sign Out
-              </Button>
-            )}
-          </div>
+          <GameControls 
+            onStartOver={handleStartOver}
+            onShowAuth={() => setShowAuthModal(true)}
+            isAuthenticated={!!user}
+            onSignOut={() => supabase.auth.signOut()}
+          />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -198,6 +129,12 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        <AuthHandler 
+          onUserChange={setUser}
+          pendingScore={pendingScore}
+          onScoreSaved={() => setPendingScore(null)}
+        />
 
         <AuthModal 
           isOpen={showAuthModal} 
