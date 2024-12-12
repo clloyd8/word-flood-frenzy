@@ -19,7 +19,7 @@ export const isValidWord = async (word: string): Promise<boolean> => {
   try {
     const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${normalizedWord}`);
     
-    // A 404 response means the word doesn't exist - this is not an error
+    // A 404 response means the word doesn't exist - this is expected behavior
     if (response.status === 404) {
       console.log('Invalid word:', normalizedWord);
       return false;
