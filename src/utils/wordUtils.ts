@@ -18,29 +18,17 @@ export const isValidWord = async (word: string): Promise<boolean> => {
 
   try {
     console.log('Checking word:', normalizedWord);
-    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${normalizedWord}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      }
-    });
+    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${normalizedWord}`);
     
-    // Handle 404 (word not found) silently - this is expected for invalid words
-    if (response.status === 404) {
-      console.log('Word not found in dictionary:', normalizedWord);
-      return false;
-    }
-    
-    // Parse the response only if it's successful
+    // If the response is successful, the word is valid
     if (response.ok) {
-      // Add valid word to cache
       validatedWordsCache.add(normalizedWord);
       console.log('Valid word found:', normalizedWord);
       return true;
     }
     
-    // For any other status, return false without throwing
-    console.log('Unexpected API response:', response.status);
+    // Any non-200 response (including 404) means the word is invalid
+    console.log('Invalid word:', normalizedWord);
     return false;
     
   } catch (error) {
