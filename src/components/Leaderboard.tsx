@@ -28,7 +28,16 @@ const Leaderboard = () => {
         .limit(10);
 
       if (error) throw error;
-      return data as Score[];
+      
+      // Transform the data to match our Score interface
+      const transformedData = data?.map(item => ({
+        ...item,
+        user: {
+          username: item.user.username
+        }
+      }));
+
+      return transformedData as Score[];
     },
   });
 
