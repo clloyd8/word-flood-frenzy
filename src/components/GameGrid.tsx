@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
 import { getRandomLetter } from "@/utils/wordUtils";
+import { Button } from "@/components/ui/button";
 
 interface GameGridProps {
   onWordFound: (word: string) => void;
   floodLevel: number;
-  resetTrigger: number; // Add this prop to trigger resets
+  resetTrigger: number;
 }
 
 const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const [grid, setGrid] = useState<string[][]>(() => 
     Array(6).fill(null).map(() => Array(6).fill(""))
   );
-  const [selection, setSelection] = useState<{ row: number; col: number }[]>([]);
-  const [isSelecting, setIsSelecting] = useState(false);
+  const [currentWord, setCurrentWord] = useState<string>("");
+  const [selectedCells, setSelectedCells] = useState<{ row: number; col: number }[]>([]);
   const [lastAddTime, setLastAddTime] = useState(Date.now());
 
   // Reset the grid when resetTrigger changes
   useEffect(() => {
     setGrid(Array(6).fill(null).map(() => Array(6).fill("")));
-    setSelection([]);
-    setIsSelecting(false);
+    setCurrentWord("");
+    setSelectedCells([]);
     setLastAddTime(Date.now());
   }, [resetTrigger]);
 
@@ -55,45 +56,36 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
     return () => clearInterval(interval);
   }, [lastAddTime]);
 
-  const handleMouseDown = (row: number, col: number) => {
-    if (grid[row][col]) {
-      setIsSelecting(true);
-      setSelection([{ row, col }]);
-    }
+  const handleCellClick = (row: number, col: number) => {
+    if (!grid[row][col]) return;
+    
+    // Add letter to current word
+    setCurrentWord(prev => prev + grid[row][col]);
+    setSelectedCells(prev => [...prev, { row, col }]);
   };
 
-  const handleMouseEnter = (row: number, col: number) => {
-    if (isSelecting && grid[row][col]) {
-      // Only add to selection if it's adjacent to the last selected cell
-      const lastCell = selection[selection.length - 1];
-      const isAdjacent = Math.abs(row - lastCell.row) <= 1 && 
-                        Math.abs(col - lastCell.col) <= 1;
-      
-      if (isAdjacent && !selection.some(pos => pos.row === row && pos.col === col)) {
-        setSelection(prev => [...prev, { row, col }]);
-      }
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (selection.length >= 3) {
-      const word = selection
-        .map(({ row, col }) => grid[row][col])
-        .join("");
-      
-      onWordFound(word);
+  const handleSubmit = () => {
+    if (currentWord.length >= 3) {
+      onWordFound(currentWord);
       
       // Remove used letters if word is valid
       setGrid(currentGrid => {
         const newGrid = currentGrid.map(row => [...row]);
-        selection.forEach(({ row, col }) => {
+        selectedCells.forEach(({ row, col }) => {
           newGrid[row][col] = "";
         });
         return newGrid;
       });
     }
-    setSelection([]);
-    setIsSelecting(false);
+    
+    // Reset current word and selections
+    setCurrentWord("");
+    setSelectedCells([]);
+  };
+
+  const handleClear = () => {
+    setCurrentWord("");
+    setSelectedCells([]);
   };
 
   const isGridFull = grid.every(row => row.every(cell => cell !== ""));
@@ -105,39 +97,55 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   }, [isGridFull]);
 
   return (
-    <div 
-      className="grid grid-cols-6 gap-1 bg-water-light p-2 rounded-lg"
-      onMouseLeave={() => {
-        setSelection([]);
-        setIsSelecting(false);
-      }}
-    >
-      {grid.map((row, rowIndex) => (
-        row.map((letter, colIndex) => {
-          const isSelected = selection.some(
-            (pos) => pos.row === rowIndex && pos.col === colIndex
-          );
+    <div className="flex flex-col items-center gap-4">
+      <div className="grid grid-cols-6 gap-1 bg-water-light p-2 rounded-lg">
+        {grid.map((row, rowIndex) => (
+          row.map((letter, colIndex) => {
+            const isSelected = selectedCells.some(
+              (pos) => pos.row === rowIndex && pos.col === colIndex
+            );
 
-          return (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={`
-                w-12 h-12 flex items-center justify-center
-                rounded-md text-xl font-bold cursor-pointer
-                transition-all duration-200
-                ${letter ? "animate-fade-in" : ""}
-                ${isSelected ? "bg-coral text-white" : "bg-white text-water-dark"}
-                ${letter ? "shadow-sm" : ""}
-              `}
-              onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
-              onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
-              onMouseUp={handleMouseUp}
-            >
-              {letter}
-            </div>
-          );
-        })
-      ))}
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={`
+                  w-12 h-12 flex items-center justify-center
+                  rounded-md text-xl font-bold cursor-pointer
+                  transition-all duration-200
+                  ${letter ? "animate-fade-in" : ""}
+                  ${isSelected ? "bg-coral text-white" : "bg-white text-water-dark"}
+                  ${letter ? "shadow-sm" : ""}
+                `}
+                onClick={() => handleCellClick(rowIndex, colIndex)}
+              >
+                {letter}
+              </div>
+            );
+          })
+        ))}
+      </div>
+
+      <div className="flex flex-col items-center gap-2">
+        <div className="min-h-[3rem] px-4 py-2 bg-white rounded-lg shadow-sm text-xl font-bold text-water-dark">
+          {currentWord || "Tap letters to form a word"}
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleClear}
+            variant="outline"
+            className="bg-white text-water-dark"
+          >
+            Clear
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            className="bg-coral text-white hover:bg-coral/90"
+            disabled={currentWord.length < 3}
+          >
+            Submit Word
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
