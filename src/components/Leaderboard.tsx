@@ -9,6 +9,9 @@ interface Score {
   profiles: {
     username: string;
   };
+  user?: {
+    username: string;
+  };
 }
 
 const Leaderboard = () => {
@@ -37,8 +40,12 @@ const Leaderboard = () => {
       console.log("Received leaderboard data:", data);
       
       // Transform the data to match our Score interface
-      const transformedData = data.map(item => ({
-        ...item,
+      const transformedData = data.map((item: any) => ({
+        id: item.id,
+        score: item.score,
+        user_id: item.user_id,
+        created_at: item.created_at,
+        profiles: item.profiles,
         user: {
           username: item.profiles?.username || 'Anonymous'
         }
