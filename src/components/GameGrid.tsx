@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getRandomLetter, isValidWord } from "@/utils/wordUtils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import FloodOverlay from "./FloodOverlay";
 
 interface GameGridProps {
   onWordFound: (word: string) => void;
@@ -158,7 +159,8 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="grid grid-cols-6 gap-1 bg-water-light p-2 rounded-lg">
+      <div className="grid grid-cols-6 gap-1 bg-water-light p-2 rounded-lg relative">
+        <FloodOverlay isVisible={hasTriggeredGameOver} />
         {grid.map((row, rowIndex) => (
           row.map((letter, colIndex) => {
             const isSelected = selectedCells.some(
