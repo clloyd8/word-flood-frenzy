@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import GameGrid from "@/components/GameGrid";
 import ScoreBoard from "@/components/ScoreBoard";
 import FloodIndicator from "@/components/FloodIndicator";
@@ -18,6 +19,7 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -96,9 +98,14 @@ const Index = () => {
   const handleGameOver = async () => {
     if (user && score > 0) {
       try {
+        console.log("Saving score to database...");
         await supabase
           .from("scores")
           .insert([{ user_id: user.id, score }]);
+        
+        // Invalidate all leaderboard queries to force a refresh
+        console.log("Invalidating leaderboard queries...");
+        queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
         
         toast({
           title: "Score Saved!",
