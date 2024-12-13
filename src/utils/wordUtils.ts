@@ -49,26 +49,68 @@ const CONSONANTS = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 
 
 const isVowel = (letter: string): boolean => VOWELS.includes(letter);
 
+const checkForConsecutiveConsonants = (grid: string[][]): number => {
+  let maxConsecutive = 0;
+  
+  // Check horizontally
+  for (let row = 0; row < grid.length; row++) {
+    let current = 0;
+    for (let col = 0; col < grid[row].length; col++) {
+      if (grid[row][col] && !isVowel(grid[row][col])) {
+        current++;
+        maxConsecutive = Math.max(maxConsecutive, current);
+      } else {
+        current = 0;
+      }
+    }
+  }
+
+  // Check vertically
+  for (let col = 0; col < grid[0].length; col++) {
+    let current = 0;
+    for (let row = 0; row < grid.length; row++) {
+      if (grid[row][col] && !isVowel(grid[row][col])) {
+        current++;
+        maxConsecutive = Math.max(maxConsecutive, current);
+      } else {
+        current = 0;
+      }
+    }
+  }
+
+  // Check diagonally (top-left to bottom-right)
+  for (let startRow = 0; startRow < grid.length; startRow++) {
+    for (let startCol = 0; startCol < grid[0].length; startCol++) {
+      let current = 0;
+      let row = startRow;
+      let col = startCol;
+      while (row < grid.length && col < grid[0].length) {
+        if (grid[row][col] && !isVowel(grid[row][col])) {
+          current++;
+          maxConsecutive = Math.max(maxConsecutive, current);
+        } else {
+          current = 0;
+        }
+        row++;
+        col++;
+      }
+    }
+  }
+
+  return maxConsecutive;
+};
+
 export const getRandomLetter = (grid: string[][]): string => {
   // Safely handle undefined grid
   if (!grid || !grid.length) {
     return VOWELS[Math.floor(Math.random() * VOWELS.length)];
   }
 
-  // Count consecutive consonants in the last row
-  const lastRow = grid[grid.length - 1];
-  let consecutiveConsonants = 0;
+  const consecutiveConsonants = checkForConsecutiveConsonants(grid);
   
-  for (let i = lastRow.length - 1; i >= 0 && lastRow[i]; i--) {
-    if (!isVowel(lastRow[i])) {
-      consecutiveConsonants++;
-    } else {
-      break;
-    }
-  }
-
-  // If we have 4 consonants in a row, force a vowel
+  // If we have 4 consonants in a row, force a vowel to prevent reaching 5
   if (consecutiveConsonants >= 4) {
+    console.log('Forcing vowel due to consecutive consonants:', consecutiveConsonants);
     return VOWELS[Math.floor(Math.random() * VOWELS.length)];
   }
 
