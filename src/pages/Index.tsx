@@ -116,7 +116,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-black italic tracking-wider text-water-dark hover:text-water-dark/90 transition-colors duration-300 transform hover:scale-105">
+          <h1 className="text-4xl font-bold text-water-dark">
             Word Flood
           </h1>
           <GameControls 
