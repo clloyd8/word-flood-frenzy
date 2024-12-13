@@ -44,7 +44,29 @@ export const isValidWord = async (word: string): Promise<boolean> => {
   }
 };
 
-export const getRandomLetter = (): string => {
+const VOWELS = ['A', 'E', 'I', 'O', 'U'];
+const CONSONANTS = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
+
+const isVowel = (letter: string): boolean => VOWELS.includes(letter);
+
+export const getRandomLetter = (grid: string[][]): string => {
+  // Count consecutive consonants in the last row
+  const lastRow = grid[grid.length - 1];
+  let consecutiveConsonants = 0;
+  
+  for (let i = lastRow.length - 1; i >= 0 && lastRow[i]; i--) {
+    if (!isVowel(lastRow[i])) {
+      consecutiveConsonants++;
+    } else {
+      break;
+    }
+  }
+
+  // If we have 4 consonants in a row, force a vowel
+  if (consecutiveConsonants >= 4) {
+    return VOWELS[Math.floor(Math.random() * VOWELS.length)];
+  }
+
   // Weighted distribution favoring common letters
   const letters = 'EEEEAAAAIIIIOOOONNNNSSSSRRRRTTTTLLLLSSSSUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ';
   return letters.charAt(Math.floor(Math.random() * letters.length));
