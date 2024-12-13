@@ -49,55 +49,67 @@ const CONSONANTS = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 
 
 const isVowel = (letter: string): boolean => VOWELS.includes(letter);
 
-const checkForConsecutiveConsonants = (grid: string[][]): number => {
-  let maxConsecutive = 0;
+const countConsecutiveConsonants = (grid: string[][]): number => {
+  // Find the most recent non-empty cell
+  let lastRow = -1;
+  let lastCol = -1;
   
-  // Check horizontally
-  for (let row = 0; row < grid.length; row++) {
-    let current = 0;
-    for (let col = 0; col < grid[row].length; col++) {
-      if (grid[row][col] && !isVowel(grid[row][col])) {
-        current++;
-        maxConsecutive = Math.max(maxConsecutive, current);
-      } else {
-        current = 0;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j]) {
+        lastRow = i;
+        lastCol = j;
       }
     }
   }
 
-  // Check vertically
-  for (let col = 0; col < grid[0].length; col++) {
-    let current = 0;
-    for (let row = 0; row < grid.length; row++) {
-      if (grid[row][col] && !isVowel(grid[row][col])) {
-        current++;
-        maxConsecutive = Math.max(maxConsecutive, current);
-      } else {
-        current = 0;
-      }
+  if (lastRow === -1) return 0;
+
+  // Count consecutive consonants backwards from the last filled cell
+  let count = 0;
+  let maxCount = 0;
+  
+  // Check in the same row
+  for (let j = lastCol; j >= 0; j--) {
+    if (!grid[lastRow][j]) break;
+    if (!isVowel(grid[lastRow][j])) {
+      count++;
+      maxCount = Math.max(maxCount, count);
+    } else {
+      count = 0;
     }
   }
 
-  // Check diagonally (top-left to bottom-right)
-  for (let startRow = 0; startRow < grid.length; startRow++) {
-    for (let startCol = 0; startCol < grid[0].length; startCol++) {
-      let current = 0;
-      let row = startRow;
-      let col = startCol;
-      while (row < grid.length && col < grid[0].length) {
-        if (grid[row][col] && !isVowel(grid[row][col])) {
-          current++;
-          maxConsecutive = Math.max(maxConsecutive, current);
-        } else {
-          current = 0;
-        }
-        row++;
-        col++;
-      }
+  // Check in the same column
+  count = 0;
+  for (let i = lastRow; i >= 0; i--) {
+    if (!grid[i][lastCol]) break;
+    if (!isVowel(grid[i][lastCol])) {
+      count++;
+      maxCount = Math.max(maxCount, count);
+    } else {
+      count = 0;
     }
   }
 
-  return maxConsecutive;
+  // Check diagonally
+  count = 0;
+  let i = lastRow;
+  let j = lastCol;
+  while (i >= 0 && j >= 0) {
+    if (!grid[i][j]) break;
+    if (!isVowel(grid[i][j])) {
+      count++;
+      maxCount = Math.max(maxCount, count);
+    } else {
+      count = 0;
+    }
+    i--;
+    j--;
+  }
+
+  console.log('Current consecutive consonants:', maxCount);
+  return maxCount;
 };
 
 export const getRandomLetter = (grid: string[][]): string => {
@@ -106,7 +118,7 @@ export const getRandomLetter = (grid: string[][]): string => {
     return VOWELS[Math.floor(Math.random() * VOWELS.length)];
   }
 
-  const consecutiveConsonants = checkForConsecutiveConsonants(grid);
+  const consecutiveConsonants = countConsecutiveConsonants(grid);
   
   // If we have 4 consonants in a row, force a vowel to prevent reaching 5
   if (consecutiveConsonants >= 4) {
