@@ -41,8 +41,10 @@ const Index = () => {
   const saveScore = async (finalScore: number) => {
     console.log("Attempting to save score:", finalScore);
     try {
-      const { data: session } = await supabase.auth.getSession();
-      if (session?.user) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData?.session;
+      
+      if (session?.user?.id) {
         console.log("User is logged in, saving score to database");
         const { error } = await supabase
           .from('scores')
