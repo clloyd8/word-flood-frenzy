@@ -50,6 +50,11 @@ const CONSONANTS = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 
 const isVowel = (letter: string): boolean => VOWELS.includes(letter);
 
 export const getRandomLetter = (grid: string[][]): string => {
+  // Safely handle undefined grid
+  if (!grid || !grid.length) {
+    return VOWELS[Math.floor(Math.random() * VOWELS.length)];
+  }
+
   // Count consecutive consonants in the last row
   const lastRow = grid[grid.length - 1];
   let consecutiveConsonants = 0;

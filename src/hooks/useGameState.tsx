@@ -39,7 +39,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
 
           if (emptySpots.length > 0) {
             const [row, col] = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-            newGrid[row][col] = getRandomLetter();
+            newGrid[row][col] = getRandomLetter(newGrid); // Pass the current grid state
             setLastAddTime(now);
           }
 
