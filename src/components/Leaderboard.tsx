@@ -37,6 +37,7 @@ const Leaderboard = () => {
         throw error;
       }
 
+      console.log("All-time scores retrieved:", data);
       return data.map((item: any) => ({
         id: item.id,
         score: item.score,
@@ -45,7 +46,8 @@ const Leaderboard = () => {
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds
+    staleTime: 0, // Consider data immediately stale
   });
 
   // Query for daily scores
@@ -74,6 +76,7 @@ const Leaderboard = () => {
         throw error;
       }
 
+      console.log("Daily scores retrieved:", data);
       return data.map((item: any) => ({
         id: item.id,
         score: item.score,
@@ -82,7 +85,8 @@ const Leaderboard = () => {
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds
+    staleTime: 0, // Consider data immediately stale
   });
 
   // Query for personal best
@@ -125,10 +129,10 @@ const Leaderboard = () => {
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 30000, // Refetch every 30 seconds
-    // Enable the query only when there's a session
-    enabled: true, // Always enabled to handle session changes
-    staleTime: 0, // Consider data immediately stale to refetch on session changes
+    refetchInterval: 5000, // Refetch every 5 seconds
+    staleTime: 0, // Consider data immediately stale
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const renderScoreList = (scores: Score[] | undefined, isLoading: boolean) => {
