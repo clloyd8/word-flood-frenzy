@@ -89,7 +89,6 @@ const Leaderboard = () => {
   const { data: personalBest, isLoading: loadingPersonal } = useQuery<Score[]>({
     queryKey: ["leaderboard", "personal"],
     queryFn: async () => {
-      console.log("Checking user session for personal best...");
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.user) {
@@ -110,7 +109,7 @@ const Leaderboard = () => {
         `)
         .eq('user_id', session.user.id)
         .order("score", { ascending: false })
-        .limit(5); // Changed to show only top 5 personal scores
+        .limit(5);
 
       if (error) {
         console.error("Error fetching personal best:", error);
@@ -127,6 +126,9 @@ const Leaderboard = () => {
       }));
     },
     refetchInterval: 30000, // Refetch every 30 seconds
+    // Enable the query only when there's a session
+    enabled: true, // Always enabled to handle session changes
+    staleTime: 0, // Consider data immediately stale to refetch on session changes
   });
 
   const renderScoreList = (scores: Score[] | undefined, isLoading: boolean) => {
