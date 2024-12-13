@@ -116,7 +116,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-          <h1 className="text-4xl font-bold text-water-dark order-2 sm:order-none">
+          <h1 className="text-4xl font-bold text-water-dark order-1 sm:order-none">
             Word Flood
           </h1>
           <GameControls 
