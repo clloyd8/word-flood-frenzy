@@ -110,13 +110,14 @@ const Leaderboard = () => {
         `)
         .eq('user_id', session.user.id)
         .order("score", { ascending: false })
-        .limit(10);
+        .limit(5); // Changed to show only top 5 personal scores
 
       if (error) {
         console.error("Error fetching personal best:", error);
         throw error;
       }
 
+      console.log("Personal best scores retrieved:", data);
       return data.map((item: any) => ({
         id: item.id,
         score: item.score,
