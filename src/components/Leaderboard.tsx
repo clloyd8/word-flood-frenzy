@@ -89,12 +89,15 @@ const Leaderboard = () => {
   const { data: personalBest, isLoading: loadingPersonal } = useQuery<Score[]>({
     queryKey: ["leaderboard", "personal"],
     queryFn: async () => {
-      const session = await supabase.auth.getSession();
-      if (!session.data.session?.user) {
+      console.log("Checking user session for personal best...");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user) {
+        console.log("No user session found for personal best");
         return [];
       }
 
-      console.log("Fetching personal best data...");
+      console.log("Fetching personal best data for user:", session.user.id);
       
       const { data, error } = await supabase
         .from("scores")
@@ -105,7 +108,7 @@ const Leaderboard = () => {
           created_at,
           profiles (username)
         `)
-        .eq('user_id', session.data.session.user.id)
+        .eq('user_id', session.user.id)
         .order("score", { ascending: false })
         .limit(10);
 
