@@ -38,23 +38,62 @@ const Index = () => {
     });
   };
 
+  const saveScore = async (finalScore: number) => {
+    console.log("Attempting to save score:", finalScore);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.user) {
+        console.log("User is logged in, saving score to database");
+        const { error } = await supabase
+          .from('scores')
+          .insert([
+            { 
+              user_id: session.user.id,
+              score: finalScore 
+            }
+          ]);
+          
+        if (error) {
+          console.error("Error saving score:", error);
+          throw error;
+        }
+        
+        console.log("Score saved successfully");
+        // Invalidate and refetch leaderboard queries
+        queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+        
+        toast({
+          title: "Score Saved!",
+          description: `Your score of ${finalScore} has been saved to the leaderboard.`,
+        });
+      } else {
+        console.log("User not logged in, setting pending score");
+        setPendingScore(finalScore);
+        toast({
+          title: "Sign in to save score",
+          description: "Create an account to compete on the leaderboard!",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error in saveScore:", error);
+      toast({
+        title: "Error Saving Score",
+        description: "There was a problem saving your score. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     const handleGameOver = async (event: CustomEvent) => {
       console.log("Game Over event received");
       setGameOver(true);
       setFloodLevel(100);
       
-      if (user && score > 0) {
-        console.log("User is signed in, saving score directly");
-        setPendingScore(score);
-      } else if (!user && score > 0) {
-        console.log("Setting pending score:", score);
-        setPendingScore(score);
-        toast({
-          title: "Sign in to save score",
-          description: "Create an account to compete on the leaderboard!",
-          variant: "destructive",
-        });
+      if (score > 0) {
+        console.log("Saving final score:", score);
+        await saveScore(score);
       }
     };
 
@@ -69,7 +108,7 @@ const Index = () => {
       window.removeEventListener('gameOver', handleGameOver as EventListener);
       window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
     };
-  }, [score, user]);
+  }, [score]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
