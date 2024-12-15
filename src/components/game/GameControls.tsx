@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { RefreshCw, LogIn } from "lucide-react";
+import { RefreshCw, LogIn, HelpCircle } from "lucide-react";
+import RulesDialog from "./RulesDialog";
+import { useState } from "react";
 
 interface GameControlsProps {
   onStartOver: () => void;
@@ -9,6 +11,8 @@ interface GameControlsProps {
 }
 
 const GameControls = ({ onStartOver, onShowAuth, isAuthenticated, onSignOut }: GameControlsProps) => {
+  const [showRules, setShowRules] = useState(false);
+
   return (
     <div className="flex items-center gap-4">
       <Button
@@ -18,6 +22,14 @@ const GameControls = ({ onStartOver, onShowAuth, isAuthenticated, onSignOut }: G
       >
         <RefreshCw className="w-4 h-4" />
         Start Over
+      </Button>
+      <Button
+        onClick={() => setShowRules(true)}
+        variant="outline"
+        className="flex items-center gap-2"
+      >
+        <HelpCircle className="w-4 h-4" />
+        How to Play
       </Button>
       {!isAuthenticated ? (
         <Button
@@ -36,6 +48,7 @@ const GameControls = ({ onStartOver, onShowAuth, isAuthenticated, onSignOut }: G
           Sign Out
         </Button>
       )}
+      <RulesDialog open={showRules} onOpenChange={setShowRules} />
     </div>
   );
 };
