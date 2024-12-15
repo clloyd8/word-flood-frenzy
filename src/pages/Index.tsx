@@ -145,34 +145,35 @@ const Index = () => {
           
           <div className="space-y-8">
             <ScoreBoard score={score} words={words} />
+            
+            {gameOver && (
+              <div className="bg-white p-4 rounded-lg shadow-md text-center">
+                <h2 className="text-2xl font-bold text-water-dark mb-2">Game Over!</h2>
+                <p className="text-lg mb-4">Final Score: {score}</p>
+                <div className="flex justify-center gap-4">
+                  <Button
+                    onClick={handleStartOver}
+                    className="bg-coral text-white hover:bg-opacity-90"
+                  >
+                    Play Again
+                  </Button>
+                  {!user && score > 0 && (
+                    <Button
+                      onClick={() => setShowAuthModal(true)}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Sign in to save score
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            
             <Leaderboard />
           </div>
         </div>
-
-        {gameOver && (
-          <div className="mt-8 text-center">
-            <h2 className="text-2xl font-bold text-water-dark mb-2">Game Over!</h2>
-            <p className="text-lg mb-4">Final Score: {score}</p>
-            <div className="flex justify-center gap-4">
-              <Button
-                onClick={handleStartOver}
-                className="bg-coral text-white hover:bg-opacity-90"
-              >
-                Play Again
-              </Button>
-              {!user && score > 0 && (
-                <Button
-                  onClick={() => setShowAuthModal(true)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign in to save score
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
 
         <AuthHandler 
           onUserChange={setUser}
