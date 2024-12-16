@@ -37,8 +37,8 @@ const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
       if (signUpError) throw signUpError;
 
       toast({
-        title: "Account created!",
-        description: "Please check your email to confirm your account.",
+        title: "Welcome!",
+        description: "Your account has been created successfully.",
       });
       onSuccess();
     } catch (error: any) {
