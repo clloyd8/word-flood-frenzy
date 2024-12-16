@@ -175,6 +175,30 @@ const Index = () => {
           </div>
         </div>
 
+        <footer className="mt-16 text-center text-water-dark">
+          <div className="space-y-2">
+            <p>
+              <a 
+                href="mailto:hello@peddlerdigital.com"
+                className="hover:underline"
+              >
+                hello@peddlerdigital.com
+              </a>
+            </p>
+            <p>
+              © {new Date().getFullYear()} {" "}
+              <a 
+                href="https://www.peddlerdigital.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                Peddler Digital
+              </a>
+            </p>
+          </div>
+        </footer>
+
         <AuthHandler 
           onUserChange={setUser}
           pendingScore={pendingScore}
