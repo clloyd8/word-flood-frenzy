@@ -9,7 +9,11 @@ interface GridCellProps {
 
 const GridCell = ({ letter, isSelected, onClick }: GridCellProps) => {
   const handleInteraction = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault(); // Prevent default to avoid double triggers
+    // Prevent default behavior to avoid any unwanted side effects
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Call the onClick handler directly - the parent component already handles toggling logic
     onClick();
   }, [onClick]);
 
@@ -25,7 +29,7 @@ const GridCell = ({ letter, isSelected, onClick }: GridCellProps) => {
         ${letter ? "shadow-sm" : ""}
       `)}
       onClick={handleInteraction}
-      onTouchStart={handleInteraction}
+      onTouchEnd={handleInteraction}
       role="button"
       tabIndex={0}
     >
