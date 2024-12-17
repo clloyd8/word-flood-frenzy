@@ -18,7 +18,7 @@ const GameOverControls = ({
   isAuthenticated,
 }: GameOverControlsProps) => {
   return (
-    <div className="w-full max-w-md mx-auto mt-8 bg-white p-8 rounded-lg shadow-md">
+    <div className="w-full max-w-md mx-auto mt-8 bg-white p-16 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-water-dark mb-4">Game Over!</h2>
       <p className="text-lg mb-6">Final Score: {score}</p>
       <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
