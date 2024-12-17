@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
 import GameGrid from "@/components/GameGrid";
 import ScoreBoard from "@/components/ScoreBoard";
 import FloodIndicator from "@/components/FloodIndicator";
@@ -10,8 +8,8 @@ import Leaderboard from "@/components/Leaderboard";
 import AuthModal from "@/components/auth/AuthModal";
 import AuthHandler from "@/components/auth/AuthHandler";
 import GameControls from "@/components/game/GameControls";
+import GameOverControls from "@/components/game/GameOverControls";
 import { supabase } from "@/lib/supabase";
-import ShareScore from "@/components/game/ShareScore";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -141,38 +139,20 @@ const Index = () => {
                 resetTrigger={resetTrigger} 
               />
               <FloodIndicator progress={floodLevel} />
+              {gameOver && (
+                <GameOverControls
+                  score={score}
+                  words={words}
+                  onStartOver={handleStartOver}
+                  onShowAuth={() => setShowAuthModal(true)}
+                  isAuthenticated={!!user}
+                />
+              )}
             </div>
           </div>
           
           <div className="space-y-8">
             <ScoreBoard score={score} words={words} />
-            
-            {gameOver && (
-              <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                <h2 className="text-2xl font-bold text-water-dark mb-2">Game Over!</h2>
-                <p className="text-lg mb-4">Final Score: {score}</p>
-                <div className="flex justify-center gap-4">
-                  <Button
-                    onClick={handleStartOver}
-                    className="bg-coral text-white hover:bg-opacity-90"
-                  >
-                    Play Again
-                  </Button>
-                  <ShareScore score={score} words={words} />
-                  {!user && score > 0 && (
-                    <Button
-                      onClick={() => setShowAuthModal(true)}
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      Sign in to save score
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-            
             <Leaderboard />
           </div>
         </div>
