@@ -11,6 +11,7 @@ import AuthModal from "@/components/auth/AuthModal";
 import AuthHandler from "@/components/auth/AuthHandler";
 import GameControls from "@/components/game/GameControls";
 import { supabase } from "@/lib/supabase";
+import ShareScore from "@/components/game/ShareScore";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -157,6 +158,7 @@ const Index = () => {
                   >
                     Play Again
                   </Button>
+                  <ShareScore score={score} words={words} />
                   {!user && score > 0 && (
                     <Button
                       onClick={() => setShowAuthModal(true)}
