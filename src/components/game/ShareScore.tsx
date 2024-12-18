@@ -10,7 +10,7 @@ interface ShareScoreProps {
 const ShareScore = ({ score, words }: ShareScoreProps) => {
   const generateShareText = () => {
     const emoji = score >= 200 ? "🌊" : "💧";
-    return `Word Flood - Score: ${score} ${emoji}\n\nWords found (${words.length}):\n${words.join(", ")}\n\nPlay now at https://lovable.dev/projects/d5d69b07-5d41-4937-8c4e-07f3d583617c`;
+    return `Word Flood - Score: ${score} ${emoji}\n\nWords found (${words.length}):\n${words.join(", ")}`;
   };
 
   const handleShare = async () => {
@@ -45,7 +45,7 @@ const ShareScore = ({ score, words }: ShareScoreProps) => {
     <Button
       onClick={handleShare}
       variant="outline"
-      className="flex items-center gap-2"
+      className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white border-green-600"
     >
       <Share2 className="w-4 h-4" />
       Share Score
