@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -161,19 +162,19 @@ const Leaderboard = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
       <h2 className="text-xl font-bold text-water-dark mb-4">Leaderboard</h2>
-      <Tabs defaultValue="all-time" className="w-full">
+      <Tabs defaultValue="daily" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="all-time">All Time</TabsTrigger>
           <TabsTrigger value="daily">Daily</TabsTrigger>
+          <TabsTrigger value="all-time">All Time</TabsTrigger>
           <TabsTrigger value="personal">Personal Best</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all-time" className="space-y-2">
-          {renderScoreList(allTimeScores, loadingAllTime)}
-        </TabsContent>
-        
         <TabsContent value="daily" className="space-y-2">
           {renderScoreList(dailyScores, loadingDaily)}
+        </TabsContent>
+        
+        <TabsContent value="all-time" className="space-y-2">
+          {renderScoreList(allTimeScores, loadingAllTime)}
         </TabsContent>
         
         <TabsContent value="personal" className="space-y-2">
