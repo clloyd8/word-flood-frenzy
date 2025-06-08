@@ -20,6 +20,7 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
   const [pendingScore, setPendingScore] = useState<number | null>(null);
+  const [keyboardMode, setKeyboardMode] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -32,8 +33,19 @@ const Index = () => {
     setResetTrigger(prev => prev + 1);
     toast({
       title: "New Game Started",
-      description: "Good luck!",
+      description: `${keyboardMode ? "Keyboard mode" : "Touch mode"} - Good luck!`,
       duration: 2000,
+    });
+  };
+
+  const handleKeyboardModeChange = (enabled: boolean) => {
+    setKeyboardMode(enabled);
+    toast({
+      title: enabled ? "Keyboard Mode Enabled" : "Touch Mode Enabled",
+      description: enabled 
+        ? "Letters spawn faster! Type words using your keyboard." 
+        : "Letters spawn normally. Tap letters to select words.",
+      duration: 3000,
     });
   };
 
@@ -123,6 +135,8 @@ const Index = () => {
             onShowAuth={() => setShowAuthModal(true)}
             isAuthenticated={!!user}
             onSignOut={() => supabase.auth.signOut()}
+            keyboardMode={keyboardMode}
+            onKeyboardModeChange={handleKeyboardModeChange}
           />
         </div>
         
@@ -136,7 +150,8 @@ const Index = () => {
                   setWords(current => [...current, word]);
                 }} 
                 floodLevel={floodLevel} 
-                resetTrigger={resetTrigger} 
+                resetTrigger={resetTrigger}
+                keyboardMode={keyboardMode}
               />
               <FloodIndicator progress={floodLevel} />
               {gameOver && (

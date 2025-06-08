@@ -1,5 +1,7 @@
+
 import { Button } from "@/components/ui/button";
-import { RefreshCw, LogIn, HelpCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { RefreshCw, LogIn, HelpCircle, Keyboard } from "lucide-react";
 import RulesDialog from "./RulesDialog";
 import { useState } from "react";
 
@@ -8,13 +10,32 @@ interface GameControlsProps {
   onShowAuth: () => void;
   isAuthenticated: boolean;
   onSignOut: () => void;
+  keyboardMode?: boolean;
+  onKeyboardModeChange?: (enabled: boolean) => void;
 }
 
-const GameControls = ({ onStartOver, onShowAuth, isAuthenticated, onSignOut }: GameControlsProps) => {
+const GameControls = ({ 
+  onStartOver, 
+  onShowAuth, 
+  isAuthenticated, 
+  onSignOut,
+  keyboardMode = false,
+  onKeyboardModeChange
+}: GameControlsProps) => {
   const [showRules, setShowRules] = useState(false);
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 flex-wrap">
+      {onKeyboardModeChange && (
+        <div className="flex items-center gap-2">
+          <Keyboard className="w-4 h-4" />
+          <span className="text-sm">Keyboard Mode</span>
+          <Switch
+            checked={keyboardMode}
+            onCheckedChange={onKeyboardModeChange}
+          />
+        </div>
+      )}
       <Button
         onClick={onStartOver}
         variant="outline"

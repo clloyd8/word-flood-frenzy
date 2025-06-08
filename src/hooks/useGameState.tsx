@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { getRandomLetter, isValidWord } from "@/utils/wordUtils";
 import { useToast } from "@/hooks/use-toast";
 
-export const useGameState = (onWordFound: (word: string) => void, resetTrigger: number) => {
+export const useGameState = (onWordFound: (word: string) => void, resetTrigger: number, keyboardMode: boolean = false) => {
   const [grid, setGrid] = useState<string[][]>(() => 
     Array(6).fill(null).map(() => Array(6).fill(""))
   );
@@ -12,6 +13,9 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
   const [hasTriggeredGameOver, setHasTriggeredGameOver] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const { toast } = useToast();
+
+  // Faster letter spawn rate for keyboard mode
+  const letterSpawnInterval = keyboardMode ? 800 : 1250; // 800ms for keyboard mode, 1250ms for normal mode
 
   useEffect(() => {
     setGrid(Array(6).fill(null).map(() => Array(6).fill("")));
@@ -24,7 +28,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastAddTime >= 1250) {
+      if (now - lastAddTime >= letterSpawnInterval) {
         setGrid((currentGrid) => {
           const newGrid = currentGrid.map(row => [...row]);
           const emptySpots = [];
@@ -49,7 +53,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
     }, 100);
 
     return () => clearInterval(interval);
-  }, [lastAddTime]);
+  }, [lastAddTime, letterSpawnInterval]);
 
   const calculateBoardFullness = () => {
     let filledCells = 0;
