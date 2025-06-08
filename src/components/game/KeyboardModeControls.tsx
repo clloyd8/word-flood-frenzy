@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -11,11 +11,16 @@ interface KeyboardModeControlsProps {
 
 const KeyboardModeControls = ({ onSubmit, isValidating, gameOver }: KeyboardModeControlsProps) => {
   const [typedWord, setTypedWord] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = () => {
     if (typedWord.trim() && !isValidating && !gameOver) {
       onSubmit(typedWord.trim().toLowerCase());
       setTypedWord("");
+      // Refocus the input after submission
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
     }
   };
 
@@ -25,17 +30,28 @@ const KeyboardModeControls = ({ onSubmit, isValidating, gameOver }: KeyboardMode
     }
   };
 
-  // Clear input when game resets
+  // Clear input when game resets and maintain focus
   useEffect(() => {
     if (gameOver) {
       setTypedWord("");
+    } else {
+      // Focus the input when component mounts or game resets
+      inputRef.current?.focus();
     }
   }, [gameOver]);
+
+  // Ensure input stays focused when not disabled
+  useEffect(() => {
+    if (!isValidating && !gameOver) {
+      inputRef.current?.focus();
+    }
+  }, [isValidating]);
 
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex gap-2 w-full max-w-sm">
         <Input
+          ref={inputRef}
           type="text"
           value={typedWord}
           onChange={(e) => setTypedWord(e.target.value)}
