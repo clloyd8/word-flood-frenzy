@@ -53,18 +53,25 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false 
         onWordFound(word);
         
         if (keyboardMode) {
-          // In keyboard mode, remove letters in order from grid
+          // In keyboard mode, remove exact letters needed for the word
           const wordLetters = word.toUpperCase().split('');
+          const letterCounts = wordLetters.reduce((acc, letter) => {
+            acc[letter] = (acc[letter] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>);
+          
           setGrid(currentGrid => {
             const newGrid = currentGrid.map(row => [...row]);
             
-            for (const letter of wordLetters) {
-              // Find and remove the first occurrence of each letter
-              for (let i = 0; i < 6; i++) {
-                for (let j = 0; j < 6; j++) {
+            // Remove the exact number of each letter needed
+            for (const [letter, count] of Object.entries(letterCounts)) {
+              let removedCount = 0;
+              
+              for (let i = 0; i < 6 && removedCount < count; i++) {
+                for (let j = 0; j < 6 && removedCount < count; j++) {
                   if (newGrid[i][j] === letter) {
                     newGrid[i][j] = "";
-                    break;
+                    removedCount++;
                   }
                 }
               }
@@ -110,23 +117,25 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false 
   };
 
   const handleKeyboardSubmit = async (word: string) => {
-    // Check if all letters in the word exist in the grid
+    // Check if all letters in the word exist in the grid with proper quantities
     const wordLetters = word.toUpperCase().split('');
-    const gridLetters: string[] = [];
+    const wordLetterCounts = wordLetters.reduce((acc, letter) => {
+      acc[letter] = (acc[letter] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
     
+    const gridLetterCounts: Record<string, number> = {};
     grid.forEach(row => {
       row.forEach(cell => {
-        if (cell) gridLetters.push(cell);
+        if (cell) {
+          gridLetterCounts[cell] = (gridLetterCounts[cell] || 0) + 1;
+        }
       });
     });
     
-    const hasAllLetters = wordLetters.every(letter => {
-      const indexInGrid = gridLetters.indexOf(letter);
-      if (indexInGrid !== -1) {
-        gridLetters.splice(indexInGrid, 1); // Remove used letter
-        return true;
-      }
-      return false;
+    // Check if grid has enough of each letter
+    const hasAllLetters = Object.entries(wordLetterCounts).every(([letter, needed]) => {
+      return (gridLetterCounts[letter] || 0) >= needed;
     });
     
     if (!hasAllLetters) {
