@@ -10,6 +10,7 @@ import AuthHandler from "@/components/auth/AuthHandler";
 import GameControls from "@/components/game/GameControls";
 import GameOverControls from "@/components/game/GameOverControls";
 import { supabase } from "@/lib/supabase";
+
 const Index = () => {
   const [score, setScore] = useState(0);
   const [words, setWords] = useState<string[]>([]);
@@ -24,6 +25,7 @@ const Index = () => {
     toast
   } = useToast();
   const queryClient = useQueryClient();
+
   const handleStartOver = () => {
     console.log("Starting new game");
     setScore(0);
@@ -37,6 +39,7 @@ const Index = () => {
       duration: 2000
     });
   };
+
   const handleKeyboardModeChange = (enabled: boolean) => {
     setKeyboardMode(enabled);
     toast({
@@ -45,6 +48,7 @@ const Index = () => {
       duration: 3000
     });
   };
+
   const saveScore = async (finalScore: number) => {
     console.log("Attempting to save score:", finalScore);
     try {
@@ -91,6 +95,7 @@ const Index = () => {
       });
     }
   };
+
   useEffect(() => {
     const handleGameOver = async (event: CustomEvent) => {
       console.log("Game Over event received");
@@ -101,16 +106,20 @@ const Index = () => {
         await saveScore(score);
       }
     };
+
     const handleBoardUpdate = (event: CustomEvent) => {
       setFloodLevel(event.detail.boardFullness);
     };
+
     window.addEventListener('gameOver', handleGameOver as EventListener);
     window.addEventListener('boardUpdate', handleBoardUpdate as EventListener);
+
     return () => {
       window.removeEventListener('gameOver', handleGameOver as EventListener);
       window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
     };
   }, [score]);
+
   return <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
@@ -142,7 +151,7 @@ const Index = () => {
         <footer className="mt-16 text-center text-water-dark">
           <div className="space-y-2">
             <p>
-              <a href="mailto:hello@peddlerdigital.com" className="hover:underline">A word game by nocodecharlie.com </a>
+              <a href="https://www.nocodecharlie.com" className="hover:underline">A word game by nocodecharlie.com </a>
             </p>
             <p>
               © {new Date().getFullYear()} {" "}
@@ -157,4 +166,5 @@ const Index = () => {
       </div>
     </div>;
 };
+
 export default Index;
