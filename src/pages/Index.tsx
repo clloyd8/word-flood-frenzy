@@ -142,9 +142,7 @@ const Index = () => {
         <footer className="mt-16 text-center text-water-dark">
           <div className="space-y-2">
             <p>
-              <a href="mailto:hello@peddlerdigital.com" className="hover:underline">
-                hello@peddlerdigital.com
-              </a>
+              <a href="mailto:hello@peddlerdigital.com" className="hover:underline">A word game by nocodecharlie.com </a>
             </p>
             <p>
               © {new Date().getFullYear()} {" "}
