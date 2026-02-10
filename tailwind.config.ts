@@ -18,6 +18,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        play: ['Play', 'sans-serif'],
+      },
       colors: {
         water: {
           light: "#E3F2FD",
