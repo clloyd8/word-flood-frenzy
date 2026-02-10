@@ -141,6 +141,7 @@ const Index = () => {
             }}
             floodLevel={floodLevel}
             resetTrigger={resetTrigger}
+            isPaused={showRules || showCountdown}
           />
         </div>
 

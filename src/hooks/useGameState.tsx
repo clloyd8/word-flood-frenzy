@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { getRandomLetter, isValidWord } from "@/utils/wordUtils";
 import { useToast } from "@/hooks/use-toast";
 
-export const useGameState = (onWordFound: (word: string) => void, resetTrigger: number) => {
+export const useGameState = (onWordFound: (word: string) => void, resetTrigger: number, isPaused: boolean = false) => {
   const [grid, setGrid] = useState<string[][]>(() => 
     Array(6).fill(null).map(() => Array(6).fill(""))
   );
@@ -27,7 +27,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastAddTime >= letterSpawnInterval && !isValidating) {
+      if (now - lastAddTime >= letterSpawnInterval && !isValidating && !isPaused) {
         setGrid((currentGrid) => {
           const newGrid = currentGrid.map(row => [...row]);
           const emptySpots = [];
@@ -52,7 +52,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
     }, 100);
 
     return () => clearInterval(interval);
-  }, [lastAddTime, letterSpawnInterval, isValidating]);
+  }, [lastAddTime, letterSpawnInterval, isValidating, isPaused]);
 
   const calculateBoardFullness = () => {
     let filledCells = 0;

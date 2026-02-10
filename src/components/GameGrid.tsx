@@ -8,14 +8,15 @@ interface GameGridProps {
   onWordFound: (word: string) => void;
   floodLevel: number;
   resetTrigger: number;
+  isPaused?: boolean;
 }
 
-const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
+const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: GameGridProps) => {
   const {
     grid, setGrid, currentWord, setCurrentWord,
     selectedCells, setSelectedCells, hasTriggeredGameOver,
     isValidating, setIsValidating, toast
-  } = useGameState(onWordFound, resetTrigger);
+  } = useGameState(onWordFound, resetTrigger, isPaused);
 
   const handleCellClick = (row: number, col: number) => {
     if (!grid[row][col]) return;
