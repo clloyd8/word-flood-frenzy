@@ -10,6 +10,9 @@ import AuthHandler from "@/components/auth/AuthHandler";
 import GameControls from "@/components/game/GameControls";
 import GameOverControls from "@/components/game/GameOverControls";
 import { supabase } from "@/lib/supabase";
+import { RefreshCw, HelpCircle, LogIn, LogOut, Keyboard } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import RulesDialog from "@/components/game/RulesDialog";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -21,13 +24,11 @@ const Index = () => {
   const [user, setUser] = useState(null);
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [keyboardMode, setKeyboardMode] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const [showRules, setShowRules] = useState(false);
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const handleStartOver = () => {
-    console.log("Starting new game");
     setScore(0);
     setWords([]);
     setFloodLevel(0);
@@ -50,35 +51,21 @@ const Index = () => {
   };
 
   const saveScore = async (finalScore: number) => {
-    console.log("Attempting to save score:", finalScore);
     try {
-      const {
-        data: sessionData
-      } = await supabase.auth.getSession();
+      const { data: sessionData } = await supabase.auth.getSession();
       const session = sessionData?.session;
       if (session?.user?.id) {
-        console.log("User is logged in, saving score to database");
-        const {
-          error
-        } = await supabase.from('scores').insert([{
+        const { error } = await supabase.from('scores').insert([{
           user_id: session.user.id,
           score: finalScore
         }]);
-        if (error) {
-          console.error("Error saving score:", error);
-          throw error;
-        }
-        console.log("Score saved successfully");
-        // Invalidate and refetch leaderboard queries
-        queryClient.invalidateQueries({
-          queryKey: ["leaderboard"]
-        });
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
         toast({
           title: "Score Saved!",
           description: `Your score of ${finalScore} has been saved to the leaderboard.`
         });
       } else {
-        console.log("User not logged in, setting pending score");
         setPendingScore(finalScore);
         toast({
           title: "Sign in to save score",
@@ -98,73 +85,127 @@ const Index = () => {
 
   useEffect(() => {
     const handleGameOver = async (event: CustomEvent) => {
-      console.log("Game Over event received");
       setGameOver(true);
       setFloodLevel(100);
-      if (score > 0) {
-        console.log("Saving final score:", score);
-        await saveScore(score);
-      }
+      if (score > 0) await saveScore(score);
     };
-
     const handleBoardUpdate = (event: CustomEvent) => {
       setFloodLevel(event.detail.boardFullness);
     };
-
     window.addEventListener('gameOver', handleGameOver as EventListener);
     window.addEventListener('boardUpdate', handleBoardUpdate as EventListener);
-
     return () => {
       window.removeEventListener('gameOver', handleGameOver as EventListener);
       window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
     };
   }, [score]);
 
-  return <div className="min-h-screen bg-gradient-to-b from-water-light to-water-medium p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-          <h1 className="text-4xl font-bold text-water-dark order-1 sm:order-none">
-            Word Flood
-          </h1>
-          <GameControls onStartOver={handleStartOver} onShowAuth={() => setShowAuthModal(true)} isAuthenticated={!!user} onSignOut={() => supabase.auth.signOut()} keyboardMode={keyboardMode} onKeyboardModeChange={handleKeyboardModeChange} />
+  return (
+    <div className="min-h-screen bg-app-bg flex flex-col">
+      {/* Top Header Bar */}
+      <header className="bg-app-dark text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-lg">
+        <h1 className="text-xl font-bold tracking-tight">Word Flood</h1>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowRules(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+            <HelpCircle className="w-5 h-5" />
+          </button>
+          {!user ? (
+            <button onClick={() => setShowAuthModal(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              <LogIn className="w-5 h-5" />
+            </button>
+          ) : (
+            <button onClick={() => supabase.auth.signOut()} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              <LogOut className="w-5 h-5" />
+            </button>
+          )}
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="flex flex-col items-center">
-              <GameGrid onWordFound={word => {
+      </header>
+
+      {/* Stats Bar */}
+      <div className="bg-app-card border-b border-border px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">Score</div>
+            <div className="text-2xl font-bold text-app-accent">{score}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">Words</div>
+            <div className="text-2xl font-bold text-app-dark">{words.length}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider">Flood</div>
+            <div className="text-2xl font-bold text-coral">{Math.round(floodLevel)}%</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Keyboard className="w-4 h-4 text-muted-foreground" />
+          <Switch checked={keyboardMode} onCheckedChange={handleKeyboardModeChange} />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 px-4 py-4 max-w-lg mx-auto w-full space-y-4">
+        {/* Flood Progress */}
+        <FloodIndicator progress={floodLevel} />
+
+        {/* Game Grid */}
+        <div className="bg-app-card rounded-2xl shadow-md p-3">
+          <GameGrid
+            onWordFound={word => {
               const points = word.length * 10;
               setScore(current => current + points);
               setWords(current => [...current, word]);
-            }} floodLevel={floodLevel} resetTrigger={resetTrigger} keyboardMode={keyboardMode} />
-              <FloodIndicator progress={floodLevel} />
-              {gameOver && <GameOverControls score={score} words={words} onStartOver={handleStartOver} onShowAuth={() => setShowAuthModal(true)} isAuthenticated={!!user} />}
-            </div>
-          </div>
-          
-          <div className="space-y-8">
-            <ScoreBoard score={score} words={words} />
-            <Leaderboard />
-          </div>
+            }}
+            floodLevel={floodLevel}
+            resetTrigger={resetTrigger}
+            keyboardMode={keyboardMode}
+          />
         </div>
 
-        <footer className="mt-16 text-center text-water-dark">
-          <div className="space-y-2">
-            <p>
-              <a href="https://www.nocodecharlie.com" className="hover:underline">A word game by nocodecharlie.com </a>
-            </p>
-            <p>
-              © {new Date().getFullYear()} {" "}
-              <a href="https://www.peddlerdigital.com/" target="_blank" rel="noopener noreferrer" className="hover:underline">No Code Charlie</a>
-            </p>
-          </div>
-        </footer>
+        {/* Game Over */}
+        {gameOver && (
+          <GameOverControls
+            score={score}
+            words={words}
+            onStartOver={handleStartOver}
+            onShowAuth={() => setShowAuthModal(true)}
+            isAuthenticated={!!user}
+          />
+        )}
 
-        <AuthHandler onUserChange={setUser} pendingScore={pendingScore} onScoreSaved={() => setPendingScore(null)} />
+        {/* Found Words */}
+        <ScoreBoard score={score} words={words} />
 
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        {/* Leaderboard */}
+        <Leaderboard />
+      </main>
+
+      {/* Bottom Action Bar */}
+      <div className="bg-app-card border-t border-border px-4 py-3 flex justify-around items-center sticky bottom-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <button onClick={handleStartOver} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
+          <RefreshCw className="w-5 h-5" />
+          <span className="text-[10px] uppercase tracking-wider font-medium">New Game</span>
+        </button>
+        <button onClick={() => setShowRules(true)} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
+          <HelpCircle className="w-5 h-5" />
+          <span className="text-[10px] uppercase tracking-wider font-medium">Rules</span>
+        </button>
+        <a
+          href="https://coff.ee/nocodecharlie"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors"
+        >
+          <span className="text-lg">☕️</span>
+          <span className="text-[10px] uppercase tracking-wider font-medium">Support</span>
+        </a>
       </div>
-    </div>;
+
+      <RulesDialog open={showRules} onOpenChange={setShowRules} />
+      <AuthHandler onUserChange={setUser} pendingScore={pendingScore} onScoreSaved={() => setPendingScore(null)} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+    </div>
+  );
 };
 
 export default Index;

@@ -1,4 +1,3 @@
-
 import { Progress } from "@/components/ui/progress";
 
 interface FloodIndicatorProps {
@@ -6,25 +5,23 @@ interface FloodIndicatorProps {
 }
 
 const FloodIndicator = ({ progress }: FloodIndicatorProps) => {
+  const getColor = () => {
+    if (progress < 40) return "bg-app-green";
+    if (progress < 70) return "bg-app-orange";
+    return "bg-coral";
+  };
+
   return (
-    <div className="w-full max-w-md mx-auto mt-4">
-      <Progress value={progress} className="h-2 bg-water-light">
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Flood Level</span>
+        <span className="text-xs font-bold text-foreground">{Math.round(progress)}%</span>
+      </div>
+      <div className="h-2 bg-muted rounded-full overflow-hidden">
         <div
-          className="h-full bg-water-dark transition-all duration-500"
+          className={`h-full ${getColor()} transition-all duration-500 rounded-full`}
           style={{ width: `${progress}%` }}
         />
-      </Progress>
-      <p className="text-sm text-gray-600 mt-1">Flood Progress</p>
-      
-      <div className="mt-4 text-center">
-        <a
-          href="https://coff.ee/nocodecharlie"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-coral text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors text-sm font-medium"
-        >
-          Buy Me A Coffee To Help Support This Project ☕️
-        </a>
       </div>
     </div>
   );

@@ -9,25 +9,22 @@ interface GridCellProps {
 
 const GridCell = ({ letter, isSelected, onClick }: GridCellProps) => {
   const handleInteraction = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    // Prevent default behavior to avoid any unwanted side effects
     e.preventDefault();
     e.stopPropagation();
-    
-    // Call the onClick handler directly - the parent component already handles toggling logic
     onClick();
   }, [onClick]);
 
   return (
     <div
-      className={cn(`font-sans
-        w-12 h-12 flex items-center justify-center
-        rounded-md text-xl font-bold cursor-pointer
-        transition-all duration-200 select-none
-        active:scale-95 touch-manipulation
-        ${letter ? "animate-fade-in" : ""}
-        ${isSelected ? "bg-coral text-white" : "bg-white text-water-dark"}
-        ${letter ? "shadow-sm" : ""}
-      `)}
+      className={cn(
+        "font-sans w-12 h-12 flex items-center justify-center rounded-xl text-lg font-bold cursor-pointer transition-all duration-150 select-none active:scale-90 touch-manipulation",
+        letter ? "animate-fade-in" : "",
+        isSelected
+          ? "bg-app-accent text-white shadow-lg scale-105"
+          : letter
+            ? "bg-app-card text-app-dark shadow-sm border border-border hover:border-app-accent/40"
+            : "bg-transparent",
+      )}
       onClick={handleInteraction}
       onTouchEnd={handleInteraction}
       role="button"

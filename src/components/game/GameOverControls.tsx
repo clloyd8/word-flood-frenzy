@@ -18,13 +18,16 @@ const GameOverControls = ({
   isAuthenticated,
 }: GameOverControlsProps) => {
   return (
-    <div className="w-full max-w-md mx-auto mt-8 bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-water-dark mb-4">Game Over!</h2>
-      <p className="text-lg mb-6">Final Score: {score}</p>
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 w-full">
+    <div className="bg-app-card rounded-2xl shadow-md p-6 text-center">
+      <h2 className="text-2xl font-bold text-app-dark mb-1">Game Over!</h2>
+      <p className="text-4xl font-bold text-app-accent mb-4">{score}</p>
+      <p className="text-sm text-muted-foreground mb-5">
+        You found {words.length} word{words.length !== 1 ? "s" : ""}
+      </p>
+      <div className="flex flex-col gap-2">
         <Button
           onClick={onStartOver}
-          className="w-full sm:w-auto bg-coral text-white hover:bg-opacity-90"
+          className="w-full rounded-xl bg-app-accent text-white hover:bg-app-accent/90"
         >
           Play Again
         </Button>
@@ -33,7 +36,7 @@ const GameOverControls = ({
           <Button
             onClick={onShowAuth}
             variant="outline"
-            className="w-full sm:w-auto flex items-center justify-center gap-2"
+            className="w-full rounded-xl flex items-center justify-center gap-2"
           >
             <LogIn className="w-4 h-4" />
             Sign in to save score

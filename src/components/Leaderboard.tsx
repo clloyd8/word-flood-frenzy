@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,171 +14,113 @@ interface Score {
 }
 
 const Leaderboard = () => {
-  // Query for all-time scores
   const { data: allTimeScores, isLoading: loadingAllTime } = useQuery<Score[]>({
     queryKey: ["leaderboard", "all-time"],
     queryFn: async () => {
-      console.log("Fetching all-time leaderboard data...");
-      
       const { data, error } = await supabase
         .from("scores")
-        .select(`
-          id,
-          score,
-          user_id,
-          created_at,
-          profiles (username)
-        `)
+        .select(`id, score, user_id, created_at, profiles (username)`)
         .order("score", { ascending: false })
         .limit(10);
-
-      if (error) {
-        console.error("Error fetching all-time leaderboard:", error);
-        throw error;
-      }
-
-      console.log("All-time scores retrieved:", data);
+      if (error) throw error;
       return data.map((item: any) => ({
-        id: item.id,
-        score: item.score,
-        user_id: item.user_id,
-        created_at: item.created_at,
+        ...item,
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 5000, // Refetch every 5 seconds
-    staleTime: 0, // Consider data immediately stale
+    refetchInterval: 5000,
+    staleTime: 0,
   });
 
-  // Query for daily scores
   const { data: dailyScores, isLoading: loadingDaily } = useQuery<Score[]>({
     queryKey: ["leaderboard", "daily"],
     queryFn: async () => {
-      console.log("Fetching daily leaderboard data...");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
       const { data, error } = await supabase
         .from("scores")
-        .select(`
-          id,
-          score,
-          user_id,
-          created_at,
-          profiles (username)
-        `)
+        .select(`id, score, user_id, created_at, profiles (username)`)
         .gte('created_at', today.toISOString())
         .order("score", { ascending: false })
         .limit(10);
-
-      if (error) {
-        console.error("Error fetching daily leaderboard:", error);
-        throw error;
-      }
-
-      console.log("Daily scores retrieved:", data);
+      if (error) throw error;
       return data.map((item: any) => ({
-        id: item.id,
-        score: item.score,
-        user_id: item.user_id,
-        created_at: item.created_at,
+        ...item,
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 5000, // Refetch every 5 seconds
-    staleTime: 0, // Consider data immediately stale
+    refetchInterval: 5000,
+    staleTime: 0,
   });
 
-  // Query for personal best
   const { data: personalBest, isLoading: loadingPersonal } = useQuery<Score[]>({
     queryKey: ["leaderboard", "personal"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user) {
-        console.log("No user session found for personal best");
-        return [];
-      }
-
-      console.log("Fetching personal best data for user:", session.user.id);
-      
+      if (!session?.user) return [];
       const { data, error } = await supabase
         .from("scores")
-        .select(`
-          id,
-          score,
-          user_id,
-          created_at,
-          profiles (username)
-        `)
+        .select(`id, score, user_id, created_at, profiles (username)`)
         .eq('user_id', session.user.id)
         .order("score", { ascending: false })
         .limit(5);
-
-      if (error) {
-        console.error("Error fetching personal best:", error);
-        throw error;
-      }
-
-      console.log("Personal best scores retrieved:", data);
+      if (error) throw error;
       return data.map((item: any) => ({
-        id: item.id,
-        score: item.score,
-        user_id: item.user_id,
-        created_at: item.created_at,
+        ...item,
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 5000, // Refetch every 5 seconds
-    staleTime: 0, // Consider data immediately stale
-    refetchOnMount: true, // Refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchInterval: 5000,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const renderScoreList = (scores: Score[] | undefined, isLoading: boolean) => {
-    if (isLoading) return <div className="text-center py-4">Loading scores...</div>;
-    
+    if (isLoading) return <div className="text-center py-4 text-muted-foreground text-sm">Loading...</div>;
     if (!scores || scores.length === 0) {
-      return <div className="text-center text-gray-500 py-4">No scores yet</div>;
+      return <div className="text-center text-muted-foreground py-4 text-sm">No scores yet</div>;
     }
-
     return scores.map((score, index) => (
       <div
         key={score.id}
-        className="flex justify-between items-center p-2 bg-water-light rounded-md"
+        className="flex justify-between items-center px-3 py-2.5 rounded-xl bg-muted/50"
       >
-        <span className="font-medium">
-          {index + 1}. {score.profiles.username || 'Anonymous'}
-          <span className="text-sm text-gray-500 ml-2">
-            {format(new Date(score.created_at), 'MMM d, yyyy')}
+        <div className="flex items-center gap-2.5">
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+            index === 0 ? "bg-app-accent text-white" :
+            index === 1 ? "bg-app-orange text-white" :
+            index === 2 ? "bg-app-green text-white" :
+            "bg-muted text-muted-foreground"
+          }`}>
+            {index + 1}
           </span>
-        </span>
-        <span className="text-water-dark font-bold">{score.score}</span>
+          <div>
+            <span className="font-medium text-sm text-foreground">
+              {score.profiles.username || 'Anonymous'}
+            </span>
+            <span className="text-xs text-muted-foreground ml-2">
+              {format(new Date(score.created_at), 'MMM d')}
+            </span>
+          </div>
+        </div>
+        <span className="text-app-accent font-bold text-sm">{score.score}</span>
       </div>
     ));
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-xl font-bold text-water-dark mb-4">Leaderboard</h2>
+    <div className="bg-app-card rounded-2xl shadow-md p-4">
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Leaderboard</h2>
       <Tabs defaultValue="daily" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="daily">Daily</TabsTrigger>
-          <TabsTrigger value="all-time">All Time</TabsTrigger>
-          <TabsTrigger value="personal">Personal Best</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-3 rounded-xl bg-muted h-9">
+          <TabsTrigger value="daily" className="rounded-lg text-xs">Daily</TabsTrigger>
+          <TabsTrigger value="all-time" className="rounded-lg text-xs">All Time</TabsTrigger>
+          <TabsTrigger value="personal" className="rounded-lg text-xs">Personal</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="daily" className="space-y-2">
-          {renderScoreList(dailyScores, loadingDaily)}
-        </TabsContent>
-        
-        <TabsContent value="all-time" className="space-y-2">
-          {renderScoreList(allTimeScores, loadingAllTime)}
-        </TabsContent>
-        
-        <TabsContent value="personal" className="space-y-2">
-          {renderScoreList(personalBest, loadingPersonal)}
-        </TabsContent>
+        <TabsContent value="daily" className="space-y-1.5">{renderScoreList(dailyScores, loadingDaily)}</TabsContent>
+        <TabsContent value="all-time" className="space-y-1.5">{renderScoreList(allTimeScores, loadingAllTime)}</TabsContent>
+        <TabsContent value="personal" className="space-y-1.5">{renderScoreList(personalBest, loadingPersonal)}</TabsContent>
       </Tabs>
     </div>
   );
