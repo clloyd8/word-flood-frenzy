@@ -7,11 +7,9 @@ import FloodIndicator from "@/components/FloodIndicator";
 import Leaderboard from "@/components/Leaderboard";
 import AuthModal from "@/components/auth/AuthModal";
 import AuthHandler from "@/components/auth/AuthHandler";
-import GameControls from "@/components/game/GameControls";
 import GameOverControls from "@/components/game/GameOverControls";
 import { supabase } from "@/lib/supabase";
-import { RefreshCw, HelpCircle, LogIn, LogOut, Keyboard } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { RefreshCw, HelpCircle, LogIn, LogOut } from "lucide-react";
 import RulesDialog from "@/components/game/RulesDialog";
 
 const Index = () => {
@@ -23,7 +21,6 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState(null);
   const [pendingScore, setPendingScore] = useState<number | null>(null);
-  const [keyboardMode, setKeyboardMode] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,17 +33,8 @@ const Index = () => {
     setResetTrigger(prev => prev + 1);
     toast({
       title: "New Game Started",
-      description: `${keyboardMode ? "Keyboard mode" : "Touch mode"} - Good luck!`,
+      description: "Good luck!",
       duration: 2000
-    });
-  };
-
-  const handleKeyboardModeChange = (enabled: boolean) => {
-    setKeyboardMode(enabled);
-    toast({
-      title: enabled ? "Keyboard Mode Enabled" : "Touch Mode Enabled",
-      description: enabled ? "Letters spawn faster! Type words using your keyboard." : "Letters spawn normally. Tap letters to select words.",
-      duration: 3000
     });
   };
 
@@ -84,7 +72,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-    const handleGameOver = async (event: CustomEvent) => {
+    const handleGameOver = async (_event: CustomEvent) => {
       setGameOver(true);
       setFloodLevel(100);
       if (score > 0) await saveScore(score);
@@ -102,53 +90,45 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-app-bg flex flex-col">
-      {/* Top Header Bar */}
+      {/* Combined Header + Stats */}
       <header className="bg-app-dark text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-lg">
         <h1 className="text-xl font-bold tracking-tight">Word Flood</h1>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setShowRules(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-            <HelpCircle className="w-5 h-5" />
-          </button>
-          {!user ? (
-            <button onClick={() => setShowAuthModal(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-              <LogIn className="w-5 h-5" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="text-center">
+              <span className="text-white/60 text-[10px] uppercase tracking-wider">Score</span>
+              <div className="text-lg font-bold text-app-accent leading-tight">{score}</div>
+            </div>
+            <div className="text-center">
+              <span className="text-white/60 text-[10px] uppercase tracking-wider">Words</span>
+              <div className="text-lg font-bold leading-tight">{words.length}</div>
+            </div>
+            <div className="text-center">
+              <span className="text-white/60 text-[10px] uppercase tracking-wider">Flood</span>
+              <div className="text-lg font-bold text-coral leading-tight">{Math.round(floodLevel)}%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setShowRules(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              <HelpCircle className="w-5 h-5" />
             </button>
-          ) : (
-            <button onClick={() => supabase.auth.signOut()} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-              <LogOut className="w-5 h-5" />
-            </button>
-          )}
+            {!user ? (
+              <button onClick={() => setShowAuthModal(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                <LogIn className="w-5 h-5" />
+              </button>
+            ) : (
+              <button onClick={() => supabase.auth.signOut()} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                <LogOut className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Stats Bar */}
-      <div className="bg-app-card border-b border-border px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider">Score</div>
-            <div className="text-2xl font-bold text-app-accent">{score}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider">Words</div>
-            <div className="text-2xl font-bold text-app-dark">{words.length}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider">Flood</div>
-            <div className="text-2xl font-bold text-coral">{Math.round(floodLevel)}%</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Keyboard className="w-4 h-4 text-muted-foreground" />
-          <Switch checked={keyboardMode} onCheckedChange={handleKeyboardModeChange} />
-        </div>
-      </div>
-
       {/* Main Content */}
       <main className="flex-1 px-4 py-4 max-w-lg mx-auto w-full space-y-4">
-        {/* Flood Progress */}
         <FloodIndicator progress={floodLevel} />
 
-        {/* Game Grid */}
         <div className="bg-app-card rounded-2xl shadow-md p-3">
           <GameGrid
             onWordFound={word => {
@@ -158,11 +138,9 @@ const Index = () => {
             }}
             floodLevel={floodLevel}
             resetTrigger={resetTrigger}
-            keyboardMode={keyboardMode}
           />
         </div>
 
-        {/* Game Over */}
         {gameOver && (
           <GameOverControls
             score={score}
@@ -173,10 +151,7 @@ const Index = () => {
           />
         )}
 
-        {/* Found Words */}
         <ScoreBoard score={score} words={words} />
-
-        {/* Leaderboard */}
         <Leaderboard />
       </main>
 
