@@ -47,11 +47,12 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
           return newGrid;
         });
       } else {
-        toast({
+        const { dismiss } = toast({
           title: "Invalid Word",
           description: `"${word}" is not a valid word. Try again!`,
           variant: "destructive",
         });
+        setTimeout(() => dismiss(), 1000);
       }
       setIsValidating(false);
     } else if (hasTriggeredGameOver) {
