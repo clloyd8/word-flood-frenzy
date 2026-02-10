@@ -1,63 +1,36 @@
 
 
-# Migrate from External Supabase to Lovable Cloud
+## Fix: Leaderboard Not Showing Scores
 
-## Overview
-Remove the hardcoded external Supabase connection and set up Lovable Cloud as the backend. This will give you a managed, always-available database and auth system without needing to maintain a separate Supabase project.
+### Problem
+The RLS policies on the `profiles` and `scores` tables are all **RESTRICTIVE** (Permissive: No). PostgreSQL requires at least one **PERMISSIVE** policy to grant access. Without any permissive policies, all queries return empty results — which is why the leaderboard shows nothing.
 
-## Steps
+### Solution
+Drop the existing restrictive policies and recreate them as **PERMISSIVE** policies (the default). This applies to both the `profiles` and `scores` tables.
 
-### 1. Enable Lovable Cloud
-- Activate Lovable Cloud for this project, which spins up a new Supabase backend automatically.
+### Technical Details
 
-### 2. Create Database Schema
-Run migrations to recreate the required tables:
-- **profiles** table: `id` (UUID, FK to auth.users), `username` (text)
-- **scores** table: `id`, `user_id` (FK to auth.users), `score` (integer), `created_at`
-- Enable RLS on both tables with appropriate policies
-- Create a trigger to auto-create a profile when a user signs up
+A single database migration will:
 
-### 3. Update Supabase Client
-- Replace `src/lib/supabase.ts` with the auto-generated Lovable Cloud client from `src/integrations/supabase/client.ts`
-- Update all imports across the app (6 files) to use the new client
-
-### 4. Update All Components
-Files that import from `src/lib/supabase`:
-- `src/pages/Index.tsx`
-- `src/components/Leaderboard.tsx`
-- `src/components/auth/AuthHandler.tsx`
-- `src/components/auth/SignInForm.tsx`
-- `src/components/auth/SignUpForm.tsx`
-
-All will be updated to import from the new Lovable Cloud client.
-
-### 5. Clean Up
-- Delete the old `src/lib/supabase.ts` file with hardcoded credentials
-
-## Technical Details
-
-### Database Schema (SQL)
+1. Drop all existing restrictive policies on `profiles` and `scores`
+2. Recreate them as permissive policies with the same access rules:
+   - **profiles**: public SELECT, authenticated INSERT (own), authenticated UPDATE (own)
+   - **scores**: public SELECT, authenticated INSERT (own)
 
 ```text
--- Profiles table
-create table public.profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  username text,
-  created_at timestamptz default now()
-);
+-- Drop restrictive policies
+DROP POLICY IF EXISTS "Anyone can view profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Anyone can view scores" ON public.scores;
+DROP POLICY IF EXISTS "Authenticated users can insert own scores" ON public.scores;
 
--- Scores table  
-create table public.scores (
-  id bigint generated always as identity primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  score integer not null,
-  created_at timestamptz default now()
-);
-
--- RLS policies for both tables
--- Trigger to auto-create profile on signup
+-- Recreate as permissive (default)
+CREATE POLICY "Anyone can view profiles" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Anyone can view scores" ON public.scores FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can insert own scores" ON public.scores FOR INSERT WITH CHECK (auth.uid() = user_id);
 ```
 
-### No Data Migration
-Since the external Supabase project appears to be unreachable/paused, there is no existing data to migrate. The new Lovable Cloud backend will start fresh.
-
+No frontend code changes are needed.
