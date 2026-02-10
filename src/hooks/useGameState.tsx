@@ -28,7 +28,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastAddTime >= letterSpawnInterval) {
+      if (now - lastAddTime >= letterSpawnInterval && !isValidating) {
         setGrid((currentGrid) => {
           const newGrid = currentGrid.map(row => [...row]);
           const emptySpots = [];
@@ -53,7 +53,7 @@ export const useGameState = (onWordFound: (word: string) => void, resetTrigger: 
     }, 100);
 
     return () => clearInterval(interval);
-  }, [lastAddTime, letterSpawnInterval]);
+  }, [lastAddTime, letterSpawnInterval, isValidating]);
 
   const calculateBoardFullness = () => {
     let filledCells = 0;
