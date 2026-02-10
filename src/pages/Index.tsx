@@ -107,7 +107,7 @@ const Index = () => {
             </div>
             <div className="text-center">
               <span className="text-white/60 text-[10px] uppercase tracking-wider">Flood</span>
-              <div className="text-lg font-bold text-coral leading-tight">{Math.round(floodLevel)}%</div>
+              <div className="text-lg font-bold text-app-accent leading-tight">{Math.round(floodLevel)}%</div>
             </div>
           </div>
           <div className="flex items-center gap-1">
