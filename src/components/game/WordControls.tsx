@@ -15,7 +15,7 @@ const WordControls = ({
 }: WordControlsProps) => {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="min-h-[3rem] px-4 py-2 bg-white rounded-lg shadow-sm text-xl font-bold text-water-dark">
+      <div className="min-h-[3rem] px-4 py-2 bg-white rounded-lg shadow-sm text-xl font-bold text-water-dark font-sans">
         {currentWord || "Tap letters to form a word"}
       </div>
       <div className="flex gap-2">
