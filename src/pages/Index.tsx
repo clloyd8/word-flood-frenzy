@@ -97,7 +97,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <div className="text-center">
               <span className="text-white/60 text-[10px] uppercase tracking-wider">Score</span>
-              <div className="text-lg font-bold text-app-accent leading-tight">{score}</div>
+              <div className="text-lg font-bold text-app-green leading-tight">{score}</div>
             </div>
             <div className="text-center">
               <span className="text-white/60 text-[10px] uppercase tracking-wider">Words</span>
