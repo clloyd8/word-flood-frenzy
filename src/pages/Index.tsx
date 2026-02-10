@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import GameGrid from "@/components/GameGrid";
@@ -8,6 +8,7 @@ import Leaderboard from "@/components/Leaderboard";
 import AuthModal from "@/components/auth/AuthModal";
 import AuthHandler from "@/components/auth/AuthHandler";
 import GameOverControls from "@/components/game/GameOverControls";
+import CountdownOverlay from "@/components/game/CountdownOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, HelpCircle, LogIn, LogOut } from "lucide-react";
 import RulesDialog from "@/components/game/RulesDialog";
@@ -22,6 +23,7 @@ const Index = () => {
   const [user, setUser] = useState(null);
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [showRules, setShowRules] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -30,13 +32,13 @@ const Index = () => {
     setWords([]);
     setFloodLevel(0);
     setGameOver(false);
-    setResetTrigger(prev => prev + 1);
-    toast({
-      title: "New Game Started",
-      description: "Good luck!",
-      duration: 2000
-    });
+    setShowCountdown(true);
   };
+
+  const handleCountdownComplete = useCallback(() => {
+    setShowCountdown(false);
+    setResetTrigger(prev => prev + 1);
+  }, []);
 
   const saveScore = async (finalScore: number) => {
     try {
@@ -129,7 +131,8 @@ const Index = () => {
       <main className="flex-1 px-4 py-4 max-w-lg mx-auto w-full space-y-4">
         <FloodIndicator progress={floodLevel} />
 
-        <div className="bg-app-card rounded-2xl shadow-md p-3">
+        <div className="bg-app-card rounded-2xl shadow-md p-3 relative">
+          <CountdownOverlay isActive={showCountdown} onComplete={handleCountdownComplete} />
           <GameGrid
             onWordFound={word => {
               const points = word.length * 10;
