@@ -52,7 +52,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
           description: `"${word}" is not a valid word. Try again!`,
           variant: "destructive",
         });
-        setTimeout(() => dismiss(), 1000);
+        setTimeout(() => dismiss(), 1500);
       }
       setIsValidating(false);
     } else if (hasTriggeredGameOver) {
