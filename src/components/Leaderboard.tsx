@@ -28,8 +28,10 @@ const Leaderboard = () => {
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 5000,
-    staleTime: 0,
+    refetchInterval: 30000,
+    staleTime: 10000,
+    retry: 2,
+    retryDelay: 5000,
   });
 
   const { data: dailyScores, isLoading: loadingDaily } = useQuery<Score[]>({
@@ -49,8 +51,10 @@ const Leaderboard = () => {
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 5000,
-    staleTime: 0,
+    refetchInterval: 30000,
+    staleTime: 10000,
+    retry: 2,
+    retryDelay: 5000,
   });
 
   const { data: personalBest, isLoading: loadingPersonal } = useQuery<Score[]>({
@@ -70,10 +74,10 @@ const Leaderboard = () => {
         profiles: item.profiles || { username: 'Anonymous' }
       }));
     },
-    refetchInterval: 5000,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+    staleTime: 10000,
+    retry: 2,
+    retryDelay: 5000,
   });
 
   const renderScoreList = (scores: Score[] | undefined, isLoading: boolean) => {
