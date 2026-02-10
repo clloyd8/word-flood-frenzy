@@ -8,7 +8,7 @@ import Leaderboard from "@/components/Leaderboard";
 import AuthModal from "@/components/auth/AuthModal";
 import AuthHandler from "@/components/auth/AuthHandler";
 import GameOverControls from "@/components/game/GameOverControls";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, HelpCircle, LogIn, LogOut } from "lucide-react";
 import RulesDialog from "@/components/game/RulesDialog";
 
