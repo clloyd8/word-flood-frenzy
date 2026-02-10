@@ -2,25 +2,23 @@ import { useGameState } from "@/hooks/useGameState";
 import { isValidWord } from "@/utils/wordUtils";
 import GridCell from "./game/GridCell";
 import WordControls from "./game/WordControls";
-import KeyboardModeControls from "./game/KeyboardModeControls";
 import FloodOverlay from "./FloodOverlay";
 
 interface GameGridProps {
   onWordFound: (word: string) => void;
   floodLevel: number;
   resetTrigger: number;
-  keyboardMode?: boolean;
 }
 
-const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false }: GameGridProps) => {
+const GameGrid = ({ onWordFound, floodLevel, resetTrigger }: GameGridProps) => {
   const {
     grid, setGrid, currentWord, setCurrentWord,
     selectedCells, setSelectedCells, hasTriggeredGameOver,
     isValidating, setIsValidating, toast
-  } = useGameState(onWordFound, resetTrigger, keyboardMode);
+  } = useGameState(onWordFound, resetTrigger);
 
   const handleCellClick = (row: number, col: number) => {
-    if (!grid[row][col] || keyboardMode) return;
+    if (!grid[row][col]) return;
     const cellIndex = selectedCells.findIndex(
       cell => cell.row === row && cell.col === col
     );
@@ -40,36 +38,13 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false 
       const valid = await isValidWord(word);
       if (valid) {
         onWordFound(word);
-        if (keyboardMode) {
-          const wordLetters = word.toUpperCase().split('');
-          const letterCounts = wordLetters.reduce((acc, letter) => {
-            acc[letter] = (acc[letter] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>);
-          setGrid(currentGrid => {
-            const newGrid = currentGrid.map(row => [...row]);
-            for (const [letter, count] of Object.entries(letterCounts)) {
-              let removedCount = 0;
-              for (let i = 0; i < 6 && removedCount < count; i++) {
-                for (let j = 0; j < 6 && removedCount < count; j++) {
-                  if (newGrid[i][j] === letter) {
-                    newGrid[i][j] = "";
-                    removedCount++;
-                  }
-                }
-              }
-            }
-            return newGrid;
+        setGrid(currentGrid => {
+          const newGrid = currentGrid.map(row => [...row]);
+          selectedCells.forEach(({ row, col }) => {
+            newGrid[row][col] = "";
           });
-        } else {
-          setGrid(currentGrid => {
-            const newGrid = currentGrid.map(row => [...row]);
-            selectedCells.forEach(({ row, col }) => {
-              newGrid[row][col] = "";
-            });
-            return newGrid;
-          });
-        }
+          return newGrid;
+        });
       } else {
         toast({
           title: "Invalid Word",
@@ -85,42 +60,12 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false 
         variant: "destructive",
       });
     }
-    if (!keyboardMode) {
-      setCurrentWord("");
-      setSelectedCells([]);
-    }
+    setCurrentWord("");
+    setSelectedCells([]);
   };
 
   const handleSubmit = async () => {
     await validateAndRemoveLetters(currentWord);
-  };
-
-  const handleKeyboardSubmit = async (word: string) => {
-    const wordLetters = word.toUpperCase().split('');
-    const wordLetterCounts = wordLetters.reduce((acc, letter) => {
-      acc[letter] = (acc[letter] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    const gridLetterCounts: Record<string, number> = {};
-    grid.forEach(row => {
-      row.forEach(cell => {
-        if (cell) {
-          gridLetterCounts[cell] = (gridLetterCounts[cell] || 0) + 1;
-        }
-      });
-    });
-    const hasAllLetters = Object.entries(wordLetterCounts).every(([letter, needed]) => {
-      return (gridLetterCounts[letter] || 0) >= needed;
-    });
-    if (!hasAllLetters) {
-      toast({
-        title: "Letters Not Available",
-        description: "Some letters in your word are not available on the grid.",
-        variant: "destructive",
-      });
-      return;
-    }
-    await validateAndRemoveLetters(word);
   };
 
   const handleClear = () => {
@@ -141,7 +86,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false 
               <GridCell
                 key={`${rowIndex}-${colIndex}`}
                 letter={letter}
-                isSelected={isSelected && !keyboardMode}
+                isSelected={isSelected}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
               />
             );
@@ -149,20 +94,12 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, keyboardMode = false 
         ))}
       </div>
 
-      {keyboardMode ? (
-        <KeyboardModeControls
-          onSubmit={handleKeyboardSubmit}
-          isValidating={isValidating}
-          gameOver={hasTriggeredGameOver}
-        />
-      ) : (
-        <WordControls
-          currentWord={currentWord}
-          onClear={handleClear}
-          onSubmit={handleSubmit}
-          isValidating={isValidating}
-        />
-      )}
+      <WordControls
+        currentWord={currentWord}
+        onClear={handleClear}
+        onSubmit={handleSubmit}
+        isValidating={isValidating}
+      />
     </div>
   );
 };
