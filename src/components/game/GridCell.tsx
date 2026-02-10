@@ -17,7 +17,7 @@ const GridCell = ({ letter, isSelected, onClick }: GridCellProps) => {
   return (
     <div
       className={cn(
-        "font-sans w-12 h-12 flex items-center justify-center rounded-xl text-lg font-bold cursor-pointer transition-all duration-150 select-none active:scale-90 touch-manipulation",
+        "font-sans w-14 h-14 flex items-center justify-center rounded-xl text-xl font-bold cursor-pointer transition-all duration-150 select-none active:scale-90 touch-manipulation",
         letter ? "animate-fade-in" : "",
         isSelected
           ? "bg-app-accent text-white shadow-lg scale-105"
