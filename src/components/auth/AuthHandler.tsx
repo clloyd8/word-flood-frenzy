@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthHandlerProps {
   onUserChange: (user: any) => void;
@@ -11,6 +12,7 @@ interface AuthHandlerProps {
 
 const AuthHandler = ({ onUserChange, pendingScore, onScoreSaved }: AuthHandlerProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const saveScore = async (score: number) => {
     try {
@@ -32,6 +34,7 @@ const AuthHandler = ({ onUserChange, pendingScore, onScoreSaved }: AuthHandlerPr
         throw error;
       }
 
+      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
       toast({
         title: "Score Saved!",
         description: "Your score has been added to the leaderboard.",
