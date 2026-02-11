@@ -12,6 +12,7 @@ import CountdownOverlay from "@/components/game/CountdownOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, HelpCircle, LogIn, LogOut } from "lucide-react";
 import RulesDialog from "@/components/game/RulesDialog";
+import wordFloodLogo from "@/assets/WordFloodApp.png";
 
 const Index = () => {
   const [score, setScore] = useState(0);
@@ -94,7 +95,7 @@ const Index = () => {
     <div className="min-h-screen bg-app-bg flex flex-col">
       {/* Combined Header + Stats */}
       <header className="bg-app-dark/90 backdrop-blur-md text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-lg">
-        <h1 className="text-xl font-bold tracking-tight">Word Flood</h1>
+        <img src={wordFloodLogo} alt="Word Flood" className="h-9 w-9 rounded-lg" />
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="text-center">
