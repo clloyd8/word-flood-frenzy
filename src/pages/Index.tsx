@@ -93,44 +93,24 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-app-bg flex flex-col">
-      {/* Combined Header + Stats */}
-      <header className="bg-app-dark/90 backdrop-blur-md text-white px-4 py-2 flex items-center justify-between sticky top-0 z-50 shadow-lg">
-        <img src={wordFloodLogo} alt="Word Flood" className="h-14 w-14 rounded-xl" />
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="text-center">
-              <span className="text-white/60 text-[10px] uppercase tracking-wider">Score</span>
-              <div className="text-lg font-bold text-app-green leading-tight">{score}</div>
-            </div>
-            <div className="text-center">
-              <span className="text-white/60 text-[10px] uppercase tracking-wider">Words</span>
-              <div className="text-lg font-bold leading-tight">{words.length}</div>
-            </div>
-            <div className="text-center">
-              <span className="text-white/60 text-[10px] uppercase tracking-wider">Flood</span>
-              <div className="text-lg font-bold text-coral leading-tight">{Math.round(floodLevel)}%</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <button onClick={() => setShowRules(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-              <HelpCircle className="w-5 h-5" />
-            </button>
-            {!user ? (
-              <button onClick={() => setShowAuthModal(true)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                <LogIn className="w-5 h-5" />
-              </button>
-            ) : (
-              <button onClick={() => supabase.auth.signOut()} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                <LogOut className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 px-4 py-4 max-w-lg mx-auto w-full space-y-4">
         <div className="bg-app-card rounded-2xl shadow-md p-3 relative space-y-3">
+          {/* Stats row inside game card */}
+          <div className="flex items-center justify-between px-1">
+            <img src={wordFloodLogo} alt="Word Flood" className="h-10 w-10 rounded-lg" />
+            <div className="flex items-center gap-3">
+              <div className="text-center">
+                <span className="text-muted-foreground text-[10px] uppercase tracking-wider">Score</span>
+                <div className="text-lg font-bold text-app-green leading-tight">{score}</div>
+              </div>
+              <div className="text-center">
+                <span className="text-muted-foreground text-[10px] uppercase tracking-wider">Words</span>
+                <div className="text-lg font-bold text-foreground leading-tight">{words.length}</div>
+              </div>
+            </div>
+          </div>
+
           <FloodIndicator progress={floodLevel} />
           <CountdownOverlay isActive={showCountdown} onComplete={handleCountdownComplete} />
           <GameGrid
@@ -155,15 +135,17 @@ const Index = () => {
             <HelpCircle className="w-5 h-5" />
             <span className="text-[10px] uppercase tracking-wider font-medium">Rules</span>
           </button>
-          <a
-            href="https://coff.ee/nocodecharlie"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors"
-          >
-            <span className="text-lg">☕️</span>
-            <span className="text-[10px] uppercase tracking-wider font-medium">Support</span>
-          </a>
+          {!user ? (
+            <button onClick={() => setShowAuthModal(true)} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
+              <LogIn className="w-5 h-5" />
+              <span className="text-[10px] uppercase tracking-wider font-medium">Sign In</span>
+            </button>
+          ) : (
+            <button onClick={() => supabase.auth.signOut()} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
+              <LogOut className="w-5 h-5" />
+              <span className="text-[10px] uppercase tracking-wider font-medium">Sign Out</span>
+            </button>
+          )}
         </div>
 
         {gameOver && (
