@@ -94,7 +94,7 @@ const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isLoading}>
           {isLoading ? "Creating account..." : "Sign Up"}
         </Button>
       </form>
