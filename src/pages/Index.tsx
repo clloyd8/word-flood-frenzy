@@ -95,7 +95,7 @@ const Index = () => {
     <div className="min-h-screen bg-app-bg flex flex-col">
       {/* Combined Header + Stats */}
       <header className="bg-app-dark/90 backdrop-blur-md text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-lg">
-        <img src={wordFloodLogo} alt="Word Flood" className="h-9 w-9 rounded-lg" />
+        <img src={wordFloodLogo} alt="Word Flood" className="h-[72px] w-[72px] rounded-lg" />
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="text-center">
