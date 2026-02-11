@@ -146,6 +146,27 @@ const Index = () => {
           />
         </div>
 
+        {/* Action Buttons */}
+        <div className="flex justify-around items-center bg-app-card rounded-2xl shadow-md px-4 py-3">
+          <button onClick={handleStartOver} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
+            <RefreshCw className="w-5 h-5" />
+            <span className="text-[10px] uppercase tracking-wider font-medium">New Game</span>
+          </button>
+          <button onClick={() => setShowRules(true)} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
+            <HelpCircle className="w-5 h-5" />
+            <span className="text-[10px] uppercase tracking-wider font-medium">Rules</span>
+          </button>
+          <a
+            href="https://coff.ee/nocodecharlie"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors"
+          >
+            <span className="text-lg">☕️</span>
+            <span className="text-[10px] uppercase tracking-wider font-medium">Support</span>
+          </a>
+        </div>
+
         {gameOver && (
           <GameOverControls
             score={score}
@@ -160,26 +181,6 @@ const Index = () => {
         <Leaderboard />
       </main>
 
-      {/* Bottom Action Bar */}
-      <div className="bg-app-card backdrop-blur-md border-t border-border px-4 py-3 flex justify-around items-center sticky bottom-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <button onClick={handleStartOver} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
-          <RefreshCw className="w-5 h-5" />
-          <span className="text-[10px] uppercase tracking-wider font-medium">New Game</span>
-        </button>
-        <button onClick={() => setShowRules(true)} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
-          <HelpCircle className="w-5 h-5" />
-          <span className="text-[10px] uppercase tracking-wider font-medium">Rules</span>
-        </button>
-        <a
-          href="https://coff.ee/nocodecharlie"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors"
-        >
-          <span className="text-lg">☕️</span>
-          <span className="text-[10px] uppercase tracking-wider font-medium">Support</span>
-        </a>
-      </div>
 
       <RulesDialog open={showRules} onOpenChange={setShowRules} />
       <AuthHandler onUserChange={setUser} pendingScore={pendingScore} onScoreSaved={() => setPendingScore(null)} />
