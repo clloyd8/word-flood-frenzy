@@ -1,17 +1,32 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface WordControlsProps {
   currentWord: string;
   onClear: () => void;
   onSubmit: () => void;
   isValidating: boolean;
+  isInvalid?: boolean;
 }
 
-const WordControls = ({ currentWord, onClear, onSubmit, isValidating }: WordControlsProps) => {
+const WordControls = ({ currentWord, onClear, onSubmit, isValidating, isInvalid = false }: WordControlsProps) => {
   return (
     <div className="flex flex-col items-center gap-3 w-full">
-      <div className="min-h-[3rem] px-5 py-2.5 bg-muted rounded-xl text-xl font-bold text-foreground font-sans w-full text-center">
-        {currentWord || <span className="text-muted-foreground font-normal text-base">Tap letters to form a word</span>}
+      <div
+        className={cn(
+          "min-h-[3rem] px-5 py-2.5 rounded-xl text-xl font-bold font-sans w-full text-center transition-colors duration-200",
+          isInvalid
+            ? "bg-destructive/10 text-destructive animate-shake"
+            : "bg-muted text-foreground"
+        )}
+      >
+        {isInvalid ? (
+          <span className="text-destructive font-bold">Invalid</span>
+        ) : currentWord ? (
+          currentWord
+        ) : (
+          <span className="text-muted-foreground font-normal text-base">Tap letters to form a word</span>
+        )}
       </div>
       <div className="flex gap-2 w-full">
         <Button
