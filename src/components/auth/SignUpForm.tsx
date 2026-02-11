@@ -62,7 +62,7 @@ const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Choose a username" {...field} />
+                <Input placeholder="Choose a username" className="bg-white" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -75,7 +75,7 @@ const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter your email" {...field} />
+                <Input type="email" placeholder="Enter your email" className="bg-white" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,7 +88,7 @@ const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Choose a password" {...field} />
+                <Input type="password" placeholder="Choose a password" className="bg-white" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
