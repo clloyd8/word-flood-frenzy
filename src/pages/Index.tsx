@@ -8,7 +8,7 @@ import Leaderboard from "@/components/Leaderboard";
 import AuthModal from "@/components/auth/AuthModal";
 import AuthHandler from "@/components/auth/AuthHandler";
 import GameOverControls from "@/components/game/GameOverControls";
-import CountdownOverlay from "@/components/game/CountdownOverlay";
+
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, HelpCircle, LogIn, LogOut } from "lucide-react";
 import RulesDialog from "@/components/game/RulesDialog";
@@ -112,7 +112,6 @@ const Index = () => {
           </div>
 
           <FloodIndicator progress={floodLevel} />
-          <CountdownOverlay isActive={showCountdown} onComplete={handleCountdownComplete} />
           <GameGrid
             onWordFound={word => {
               const points = word.length * 10;
@@ -122,6 +121,8 @@ const Index = () => {
             floodLevel={floodLevel}
             resetTrigger={resetTrigger}
             isPaused={showRules || showCountdown}
+            showCountdown={showCountdown}
+            onCountdownComplete={handleCountdownComplete}
           />
         </div>
 

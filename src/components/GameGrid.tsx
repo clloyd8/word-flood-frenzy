@@ -4,15 +4,18 @@ import { isValidWord } from "@/utils/wordUtils";
 import GridCell from "./game/GridCell";
 import WordControls from "./game/WordControls";
 import FloodOverlay from "./FloodOverlay";
+import CountdownOverlay from "./game/CountdownOverlay";
 
 interface GameGridProps {
   onWordFound: (word: string) => void;
   floodLevel: number;
   resetTrigger: number;
   isPaused?: boolean;
+  showCountdown?: boolean;
+  onCountdownComplete?: () => void;
 }
 
-const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: GameGridProps) => {
+const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false, showCountdown = false, onCountdownComplete }: GameGridProps) => {
   const {
     grid, setGrid, currentWord, setCurrentWord,
     selectedCells, setSelectedCells, hasTriggeredGameOver,
@@ -101,6 +104,9 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
     <div className="flex flex-col items-center gap-4 w-full">
       <div className="grid grid-cols-6 gap-1.5 bg-muted/50 p-2.5 rounded-xl relative w-full">
         <FloodOverlay isVisible={hasTriggeredGameOver} />
+        {showCountdown && onCountdownComplete && (
+          <CountdownOverlay isActive={showCountdown} onComplete={onCountdownComplete} />
+        )}
         {grid.map((row, rowIndex) => (
           row.map((letter, colIndex) => {
             const isSelected = selectedCells.some(
