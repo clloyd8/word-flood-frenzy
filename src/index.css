@@ -4,35 +4,39 @@
 
 @layer base {
   :root {
-    --background: 30 25% 95%;
-    --foreground: 260 25% 15%;
+    --background: 195 80% 88%;
+    --foreground: 210 40% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 260 25% 15%;
+    --card: 195 40% 96%;
+    --card-foreground: 210 40% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 260 25% 15%;
+    --popover: 195 40% 96%;
+    --popover-foreground: 210 40% 15%;
 
-    --primary: 220 70% 45%;
+    --primary: 200 85% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 20% 92%;
-    --secondary-foreground: 220 50% 15%;
+    --secondary: 38 90% 60%;
+    --secondary-foreground: 210 40% 15%;
 
-    --muted: 30 15% 90%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 195 30% 88%;
+    --muted-foreground: 210 15% 40%;
 
-    --accent: 220 70% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 90% 55%;
+    --accent-foreground: 210 40% 15%;
 
     --destructive: 6 72% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 220 70% 45%;
+    --border: 195 25% 82%;
+    --input: 195 25% 82%;
+    --ring: 200 85% 45%;
 
     --radius: 0.75rem;
+
+    --tropical-sunset-start: 30 90% 65%;
+    --tropical-sunset-mid: 340 60% 60%;
+    --tropical-ocean: 200 85% 45%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -89,6 +93,16 @@
   }
 
   body {
-    @apply bg-background text-foreground font-play;
+    @apply text-foreground font-play;
+    background: linear-gradient(
+      180deg,
+      hsl(30 90% 75%) 0%,
+      hsl(340 50% 70%) 25%,
+      hsl(200 70% 60%) 50%,
+      hsl(195 80% 88%) 75%,
+      hsl(50 60% 85%) 100%
+    );
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 }
