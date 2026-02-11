@@ -14,7 +14,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-card border-border">
         <DialogHeader>
           <DialogTitle>Welcome to Word Flood</DialogTitle>
         </DialogHeader>
