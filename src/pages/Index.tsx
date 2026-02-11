@@ -130,9 +130,8 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="flex-1 px-4 py-4 max-w-lg mx-auto w-full space-y-4">
-        <FloodIndicator progress={floodLevel} />
-
-        <div className="bg-app-card rounded-2xl shadow-md p-3 relative">
+        <div className="bg-app-card rounded-2xl shadow-md p-3 relative space-y-3">
+          <FloodIndicator progress={floodLevel} />
           <CountdownOverlay isActive={showCountdown} onComplete={handleCountdownComplete} />
           <GameGrid
             onWordFound={word => {
