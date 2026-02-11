@@ -10,7 +10,7 @@ interface ShareScoreProps {
 const ShareScore = ({ score, words }: ShareScoreProps) => {
   const generateShareText = () => {
     const emoji = score >= 200 ? "🌊" : "💧";
-    return `Word Flood - Score: ${score} ${emoji}\n\nWords found (${words.length}):\n${words.join(", ")}\n\nPlay now at https://wordflood.xyz`;
+    return `Word Flood - Score: ${score} ${emoji}\n\nWords found (${words.length}):\n${words.join(", ")}\n\nPlay now at https://wordflood.app`;
   };
 
   const handleShare = async () => {
@@ -21,7 +21,7 @@ const ShareScore = ({ score, words }: ShareScoreProps) => {
         await navigator.share({
           title: 'Word Flood Score',
           text: shareText,
-          url: 'https://wordflood.xyz'
+          url: 'https://wordflood.app'
         });
         console.log('Score shared successfully');
       } catch (err) {
