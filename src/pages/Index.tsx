@@ -93,7 +93,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-app-bg flex flex-col">
       {/* Combined Header + Stats */}
-      <header className="bg-app-dark text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-lg">
+      <header className="bg-app-dark/90 backdrop-blur-md text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-lg">
         <h1 className="text-xl font-bold tracking-tight">Word Flood</h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ const Index = () => {
       </main>
 
       {/* Bottom Action Bar */}
-      <div className="bg-app-card border-t border-border px-4 py-3 flex justify-around items-center sticky bottom-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="bg-app-card backdrop-blur-md border-t border-border px-4 py-3 flex justify-around items-center sticky bottom-0 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button onClick={handleStartOver} className="flex flex-col items-center gap-1 text-muted-foreground hover:text-app-accent transition-colors">
           <RefreshCw className="w-5 h-5" />
           <span className="text-[10px] uppercase tracking-wider font-medium">New Game</span>
