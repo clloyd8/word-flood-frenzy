@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { isValidWord } from "@/utils/wordUtils";
 import GridCell from "./game/GridCell";
@@ -18,8 +19,22 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
     isValidating, setIsValidating, toast
   } = useGameState(onWordFound, resetTrigger, isPaused);
 
+  const [invalidCells, setInvalidCells] = useState<{ row: number; col: number }[]>([]);
+  const [isInvalid, setIsInvalid] = useState(false);
+
+  // Reset invalid state when resetTrigger changes
+  useEffect(() => {
+    setInvalidCells([]);
+    setIsInvalid(false);
+  }, [resetTrigger]);
+
   const handleCellClick = (row: number, col: number) => {
     if (!grid[row][col]) return;
+    // Clear invalid state on new interaction
+    if (isInvalid) {
+      setIsInvalid(false);
+      setInvalidCells([]);
+    }
     const cellIndex = selectedCells.findIndex(
       cell => cell.row === row && cell.col === col
     );
@@ -46,13 +61,18 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
           });
           return newGrid;
         });
+        setCurrentWord("");
+        setSelectedCells([]);
       } else {
-        const { dismiss } = toast({
-          title: "Invalid Word",
-          description: `"${word}" is not a valid word. Try again!`,
-          variant: "destructive",
-        });
-        setTimeout(() => dismiss(), 1500);
+        // Show inline invalid feedback
+        setInvalidCells([...selectedCells]);
+        setIsInvalid(true);
+        setTimeout(() => {
+          setIsInvalid(false);
+          setInvalidCells([]);
+          setCurrentWord("");
+          setSelectedCells([]);
+        }, 800);
       }
       setIsValidating(false);
     } else if (hasTriggeredGameOver) {
@@ -61,9 +81,9 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
         description: "The board is full! Start a new game to continue playing.",
         variant: "destructive",
       });
+      setCurrentWord("");
+      setSelectedCells([]);
     }
-    setCurrentWord("");
-    setSelectedCells([]);
   };
 
   const handleSubmit = async () => {
@@ -73,6 +93,8 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
   const handleClear = () => {
     setCurrentWord("");
     setSelectedCells([]);
+    setIsInvalid(false);
+    setInvalidCells([]);
   };
 
   return (
@@ -84,11 +106,15 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
             const isSelected = selectedCells.some(
               (pos) => pos.row === rowIndex && pos.col === colIndex
             );
+            const isCellInvalid = invalidCells.some(
+              (pos) => pos.row === rowIndex && pos.col === colIndex
+            );
             return (
               <GridCell
                 key={`${rowIndex}-${colIndex}`}
                 letter={letter}
                 isSelected={isSelected}
+                isInvalid={isCellInvalid}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
               />
             );
@@ -101,6 +127,7 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false }: G
         onClear={handleClear}
         onSubmit={handleSubmit}
         isValidating={isValidating}
+        isInvalid={isInvalid}
       />
     </div>
   );
