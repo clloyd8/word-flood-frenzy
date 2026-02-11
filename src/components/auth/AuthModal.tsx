@@ -14,7 +14,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-[hsl(50,60%,92%)] to-[hsl(30,80%,90%)] border-[hsl(30,60%,80%)] shadow-2xl rounded-3xl">
+      <DialogContent className="sm:max-w-[360px] bg-gradient-to-br from-[hsl(50,60%,92%)] to-[hsl(30,80%,90%)] border-[hsl(30,60%,80%)] shadow-2xl rounded-3xl p-5">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold text-foreground">🌊 Word Flood</DialogTitle>
         </DialogHeader>
