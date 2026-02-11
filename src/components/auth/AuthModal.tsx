@@ -14,14 +14,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-card border-border">
+      <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-[hsl(50,60%,92%)] to-[hsl(30,80%,90%)] border-[hsl(30,60%,80%)] shadow-xl">
         <DialogHeader>
-          <DialogTitle>Welcome to Word Flood</DialogTitle>
+          <DialogTitle className="text-center text-2xl font-bold text-foreground">🌊 Word Flood</DialogTitle>
         </DialogHeader>
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "signin" | "signup")}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-[hsl(30,40%,85%)]">
+            <TabsTrigger value="signin" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Sign In</TabsTrigger>
+            <TabsTrigger value="signup" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Sign Up</TabsTrigger>
           </TabsList>
           <TabsContent value="signin">
             <SignInForm onSuccess={onClose} />
