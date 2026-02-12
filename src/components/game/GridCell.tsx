@@ -18,7 +18,7 @@ const GridCell = ({ letter, isSelected, isInvalid = false, onClick }: GridCellPr
   return (
     <div
       className={cn(
-        "font-sans w-full aspect-square flex items-center justify-center rounded-xl text-base sm:text-xl font-bold cursor-pointer transition-all duration-150 select-none active:scale-90 touch-manipulation",
+        "font-sans w-full aspect-square flex items-center justify-center rounded-xl text-lg sm:text-2xl font-bold cursor-pointer transition-all duration-150 select-none active:scale-90 touch-manipulation",
         letter ? "animate-fade-in" : "",
         isInvalid
           ? "bg-destructive text-white shadow-lg scale-105 animate-shake"
