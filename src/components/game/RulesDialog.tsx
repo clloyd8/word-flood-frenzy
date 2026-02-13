@@ -14,11 +14,13 @@ interface RulesDialogProps {
 const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[70vh] overflow-y-auto max-w-[90vw]">
+      <DialogContent className="sm:max-w-[425px] max-w-[90vw] max-h-[70vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>How to Play Word Flood</DialogTitle>
-          <DialogDescription>
-            <div className="space-y-4 mt-4 text-base">
+        </DialogHeader>
+        <div className="overflow-y-auto flex-1 -mr-2 pr-2">
+          <DialogDescription asChild>
+            <div className="space-y-4 text-base text-muted-foreground">
               <p>
                 Word Flood is a word-finding game where you need to create words before the board fills up!
               </p>
@@ -58,7 +60,7 @@ const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
               </div>
             </div>
           </DialogDescription>
-        </DialogHeader>
+        </div>
       </DialogContent>
     </Dialog>
   );
