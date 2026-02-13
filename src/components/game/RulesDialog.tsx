@@ -43,6 +43,8 @@ const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
                   <span>6 letters</span><span className="font-medium">95 pts</span>
                   <span>7 letters</span><span className="font-medium">125 pts</span>
                   <span>8 letters</span><span className="font-medium">160 pts</span>
+                  <span>9 letters</span><span className="font-medium">200 pts</span>
+                  <span>10+ letters</span><span className="font-medium">240+ pts</span>
                 </div>
               </div>
 
