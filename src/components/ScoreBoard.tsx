@@ -1,3 +1,5 @@
+import { calculateWordScore } from "@/utils/scoreUtils";
+
 interface ScoreBoardProps {
   score: number;
   words: string[];
@@ -22,7 +24,7 @@ const ScoreBoard = ({ score, words }: ScoreBoardProps) => {
               {word}
             </span>
             <span className="text-xs text-muted-foreground ml-auto">
-              +{word.length * 10}
+              +{calculateWordScore(word)}
             </span>
           </div>
         ))}
