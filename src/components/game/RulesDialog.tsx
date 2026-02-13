@@ -14,7 +14,7 @@ interface RulesDialogProps {
 const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[70vh] overflow-y-auto max-w-[90vw]">
         <DialogHeader>
           <DialogTitle>How to Play Word Flood</DialogTitle>
           <DialogDescription>
