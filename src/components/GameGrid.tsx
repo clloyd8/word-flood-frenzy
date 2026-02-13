@@ -13,9 +13,11 @@ interface GameGridProps {
   isPaused?: boolean;
   showCountdown?: boolean;
   onCountdownComplete?: () => void;
+  gameStarted?: boolean;
+  onStartGame?: () => void;
 }
 
-const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false, showCountdown = false, onCountdownComplete }: GameGridProps) => {
+const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false, showCountdown = false, onCountdownComplete, gameStarted = true, onStartGame }: GameGridProps) => {
   const {
     grid, setGrid, currentWord, setCurrentWord,
     selectedCells, setSelectedCells, hasTriggeredGameOver,
@@ -104,6 +106,16 @@ const GameGrid = ({ onWordFound, floodLevel, resetTrigger, isPaused = false, sho
     <div className="flex flex-col items-center gap-4 w-full">
       <div className="grid grid-cols-6 gap-1.5 bg-muted/50 p-2.5 rounded-xl relative w-full">
         <FloodOverlay isVisible={hasTriggeredGameOver} />
+        {!gameStarted && onStartGame && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-app-dark/70 rounded-xl backdrop-blur-sm">
+            <button
+              onClick={onStartGame}
+              className="px-8 py-4 bg-app-accent hover:bg-app-accent/90 text-white text-xl font-bold rounded-2xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+            >
+              Start Game
+            </button>
+          </div>
+        )}
         {showCountdown && onCountdownComplete && (
           <CountdownOverlay isActive={showCountdown} onComplete={onCountdownComplete} />
         )}
