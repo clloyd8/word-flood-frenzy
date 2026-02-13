@@ -30,8 +30,20 @@ const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
                   <li>Submit valid words to clear those letters from the board</li>
                   <li>New letters will flood the board over time</li>
                   <li>Game ends when the board fills up completely</li>
-                  <li>Longer words score more points!</li>
                 </ul>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-semibold">Scoring:</h3>
+                <p className="text-left">Longer words are worth significantly more points!</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-left text-sm pl-2">
+                  <span>3 letters</span><span className="font-medium">30 pts</span>
+                  <span>4 letters</span><span className="font-medium">50 pts</span>
+                  <span>5 letters</span><span className="font-medium">70 pts</span>
+                  <span>6 letters</span><span className="font-medium">95 pts</span>
+                  <span>7 letters</span><span className="font-medium">125 pts</span>
+                  <span>8 letters</span><span className="font-medium">160 pts</span>
+                </div>
               </div>
 
               <div className="space-y-2">
