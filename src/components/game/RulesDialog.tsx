@@ -36,7 +36,7 @@ const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
 
               <div className="space-y-2">
                 <h3 className="font-semibold">Tips:</h3>
-                <ul className="list-disc pl-5 space-y-1">
+                <ul className="list-disc pl-5 space-y-1 text-left">
                   <li>Focus on clearing longer words for higher scores</li>
                   <li>Keep an eye on empty spaces - they'll fill up quickly!</li>
                   <li>Sign in to save your high scores</li>
