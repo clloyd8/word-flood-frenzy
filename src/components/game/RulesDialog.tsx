@@ -25,7 +25,7 @@ const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
               
               <div className="space-y-2">
                 <h3 className="font-semibold">Rules:</h3>
-                <ul className="list-disc pl-5 space-y-1">
+                <ul className="list-disc pl-5 space-y-1 text-left">
                   <li>Click letters to form words (minimum 3 letters)</li>
                   <li>Submit valid words to clear those letters from the board</li>
                   <li>New letters will flood the board over time</li>
