@@ -11,6 +11,7 @@ import GameOverControls from "@/components/game/GameOverControls";
 
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw, HelpCircle, LogIn, LogOut } from "lucide-react";
+import { calculateWordScore } from "@/utils/scoreUtils";
 import RulesDialog from "@/components/game/RulesDialog";
 import wordFloodLogo from "@/assets/WordFloodApp.png";
 
@@ -119,7 +120,7 @@ const Index = () => {
           <FloodIndicator progress={floodLevel} />
           <GameGrid
             onWordFound={word => {
-              const points = word.length * 10;
+              const points = calculateWordScore(word);
               setScore(current => current + points);
               setWords(current => [...current, word]);
             }}
