@@ -18,7 +18,7 @@ const RulesDialog = ({ open, onOpenChange }: RulesDialogProps) => {
         <DialogHeader>
           <DialogTitle>How to Play Word Flood</DialogTitle>
           <DialogDescription>
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4 mt-4 text-base">
               <p>
                 Word Flood is a word-finding game where you need to create words before the board fills up!
               </p>
