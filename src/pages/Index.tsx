@@ -85,11 +85,14 @@ const Index = () => {
     const handleBoardUpdate = (event: CustomEvent) => {
       setFloodLevel(event.detail.boardFullness);
     };
+    const handleOpenRules = () => setShowRules(true);
     window.addEventListener('gameOver', handleGameOver as EventListener);
     window.addEventListener('boardUpdate', handleBoardUpdate as EventListener);
+    window.addEventListener('openRules', handleOpenRules);
     return () => {
       window.removeEventListener('gameOver', handleGameOver as EventListener);
       window.removeEventListener('boardUpdate', handleBoardUpdate as EventListener);
+      window.removeEventListener('openRules', handleOpenRules);
     };
   }, [score]);
 
