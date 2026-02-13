@@ -25,6 +25,7 @@ const Index = () => {
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [showRules, setShowRules] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -33,6 +34,7 @@ const Index = () => {
     setWords([]);
     setFloodLevel(0);
     setGameOver(false);
+    setGameStarted(true);
     setShowCountdown(true);
   };
 
@@ -120,9 +122,11 @@ const Index = () => {
             }}
             floodLevel={floodLevel}
             resetTrigger={resetTrigger}
-            isPaused={showRules || showCountdown}
+            isPaused={showRules || showCountdown || !gameStarted}
             showCountdown={showCountdown}
             onCountdownComplete={handleCountdownComplete}
+            gameStarted={gameStarted}
+            onStartGame={handleStartOver}
           />
         </div>
 
